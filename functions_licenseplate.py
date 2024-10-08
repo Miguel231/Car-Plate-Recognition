@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
 import cv2
 import os
 import numpy as np
@@ -59,4 +58,7 @@ def plate_recognition(image_folder):
                 #show
                 show_image(roi, title=f"License Plate Region: {random_image_path}")
                 print(f"File: {random_image_path}, Coordinates: ({new_x}, {new_y}, {new_width}, {h}), Region dimensions: {roi.shape}")
+    
+
+    
 
