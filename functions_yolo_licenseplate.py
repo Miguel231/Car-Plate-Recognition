@@ -5,14 +5,14 @@ import matplotlib.pyplot as plt
 import random
 from YOLO_Files.util import get_car, read_license_plate
 
-# Load models
-coco_model = YOLO('yolov8n.pt')
-license_plate_detector = YOLO('YOLO_Files\license_plate_detector.pt')
-
-# Specify the vehicle classes you want to detect
-vehicles = [2, 3, 5, 7]  # 2: Automóvil;3: Motocicleta;5: Autobús;7: Camión
-
 def yolo_plate_recognition(image_folder):
+    # Load models
+    coco_model = YOLO('yolov8n.pt')
+    license_plate_detector = YOLO('YOLO_Files\license_plate_detector.pt')
+
+    # Specify the vehicle classes you want to detect
+    vehicles = [2, 3, 5, 7]  # 2: Automóvil;3: Motocicleta;5: Autobús;7: Camión
+
     file_list = os.listdir(image_folder)
     image_extensions = ['.jpg', '.jpeg', '.png']
     image_files = [file for file in file_list if os.path.splitext(file)[1].lower() in image_extensions]
@@ -28,6 +28,8 @@ def yolo_plate_recognition(image_folder):
 
     for detection in detections.boxes.data.tolist():
         x1, y1, x2, y2, score, class_id = detection
+
+
         if int(class_id) in vehicles:
             detections_.append([x1, y1, x2, y2, score])
 
@@ -56,12 +58,11 @@ def yolo_plate_recognition(image_folder):
         # Crop the blue rectangle region
         blue_region = frame[int(y1):int(y2), int(x1):int(x2)]
 
-        """# Display only the cropped blue rectangle using Matplotlib
+        # Display only the cropped blue rectangle using Matplotlib
         plt.figure(figsize=(10, 6))
         plt.imshow(cv2.cvtColor(blue_region, cv2.COLOR_BGR2RGB))
         plt.axis('off')  # Hide axes
         plt.title(f'Blue Rectangle - {random_image}')  # Display image title
-        plt.show()"""
+        plt.show()
 
-    return frame, license_plate_crop_thresh, blue_region
 
