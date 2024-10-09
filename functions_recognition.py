@@ -78,9 +78,8 @@ def detect_and_crop_license_plate(binary_image, original_image):
         # Display the results
         # Use cv2_imshow if in Jupyter; otherwise, use cv2.imshow
         try:
-            from google.colab.patches import cv2_imshow
-            cv2_imshow(license_plate)
-            cv2_imshow(img_copy)
+            cv2.imshow(license_plate)
+            cv2.imshow(img_copy)
         except ImportError:
             cv2.imshow("Cropped License Plate", license_plate)
             cv2.imshow("Detected License Plate", img_copy)
