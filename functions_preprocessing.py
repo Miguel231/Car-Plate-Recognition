@@ -1,6 +1,8 @@
 import os
 import shutil
 from sklearn.model_selection import train_test_split
+import numpy as np
+from sklearn.model_selection import train_test_split
 
 def combine_image_folders(source_folders, destination_folder):
     """
@@ -33,11 +35,6 @@ def combine_image_folders(source_folders, destination_folder):
 
         else:
             print(f"The folder {folder} does not exist.")
-
-import os
-import shutil
-import numpy as np
-from sklearn.model_selection import train_test_split
 
 def train_test(source_folder, train_folder, test_folder, val_folder, random_state=42):
     """
@@ -76,3 +73,22 @@ def train_test(source_folder, train_folder, test_folder, val_folder, random_stat
     move_files(val_indices, val_folder)
 
     print(f"Data split complete: {len(train_indices)} training files, {len(test_indices)} testing files, {len(val_indices)} validation files.")
+
+def erase_double_images(folder_path):
+    # Loop through each file in the folder
+    for filename in os.listdir(folder_path):
+        # Check if the file has '(1)' in its name
+        if '(1)' in filename:
+            file_path = os.path.join(folder_path, filename)
+            try:
+                os.remove(file_path)
+                print(f'Deleted: {file_path}')
+            except Exception as e:
+                print(f'Error deleting {file_path}: {e}')
+        elif '(2)' in filename:
+            file_path = os.path.join(folder_path, filename)
+            try:
+                os.remove(file_path)
+                print(f'Deleted: {file_path}')
+            except Exception as e:
+                print(f'Error deleting {file_path}: {e}')
