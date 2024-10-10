@@ -9,6 +9,8 @@ from sklearn import svm
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import StandardScaler, LabelEncoder
+from PIL import Image
+
 
 # Function to visualize images side by side
 def visualize(images, titles, suptitle=None, cmap=None):
@@ -220,29 +222,38 @@ def train_svm_and_get_accuracy(base_path):
     Returns:
     - accuracy (float): The accuracy of the trained SVM classifier on the test set.
     """
-    # Function to load images and assign labels based on folder names
     def load_images_from_folder(base_path):
-        images = []
-        labels = []
+            images = []
+            labels = []
 
-        # Iterate through each folder (A-Z, 0-9)
-        for folder in os.listdir(base_path):
-            folder_path = os.path.join(base_path, folder)
-            print(folder_path)
-            if os.path.isdir(folder_path):
-                # Inside the folder, load each image
-                for img_name in os.listdir(folder_path):
-                    img_path = os.path.join(folder_path, img_name)
-                    print(img_path)
-                    # Load the image, convert to grayscale, and resize to a standard size (e.g., 28x28)
-                    img = Image.open(img_path).convert('L').resize((28, 28))
-                    img_array = np.array(img).flatten()  # Flatten the image
-                    images.append(img_array)
+            # Valid image extensions
+            valid_image_extensions = ['.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.gif']
 
-                    # Assign the folder name as label
-                    labels.append(folder)  # Keep folder names as labels
+            # Iterate through each folder (A-Z, 0-9)
+            for folder in os.listdir(base_path):
+                folder_path = os.path.join(base_path, folder)
+                if os.path.isdir(folder_path):
+                    # Inside the folder, load each image
+                    for img_name in os.listdir(folder_path):
+                        img_path = os.path.join(folder_path, img_name)
 
-        return np.array(images), np.array(labels)
+                        # Get file extension and check if it's a valid image file
+                        _, ext = os.path.splitext(img_name)
+                        if ext.lower() in valid_image_extensions:
+                            try:
+                                # Load the image, convert to grayscale, and resize to a standard size (e.g., 28x28)
+                                img = Image.open(img_path).convert('L').resize((28, 28))
+                                img_array = np.array(img).flatten()  # Flatten the image
+                                images.append(img_array)
+
+                                # Assign the folder name as label
+                                labels.append(folder)  # Keep folder names as labels
+                            except Exception as e:
+                                print(f"Error loading image {img_name}: {e}")
+                                continue  # Skip the problematic image
+
+            return np.array(images), np.array(labels)
+
 
     # Load the images and labels
     images, labels = load_images_from_folder(base_path)
