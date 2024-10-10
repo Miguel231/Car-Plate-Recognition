@@ -228,10 +228,12 @@ def train_svm_and_get_accuracy(base_path):
         # Iterate through each folder (A-Z, 0-9)
         for folder in os.listdir(base_path):
             folder_path = os.path.join(base_path, folder)
+            print(folder_path)
             if os.path.isdir(folder_path):
                 # Inside the folder, load each image
                 for img_name in os.listdir(folder_path):
                     img_path = os.path.join(folder_path, img_name)
+                    print(img_path)
                     # Load the image, convert to grayscale, and resize to a standard size (e.g., 28x28)
                     img = Image.open(img_path).convert('L').resize((28, 28))
                     img_array = np.array(img).flatten()  # Flatten the image
