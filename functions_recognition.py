@@ -1,5 +1,6 @@
 import cv2
-from License_Plate_Detection.first_collab import visualize
+import sys
+import functions_licenseplate as f
 
 def OCR_image(license_plate):
     if license_plate is None or license_plate.size == 0:
@@ -22,7 +23,7 @@ def OCR_image(license_plate):
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
     dilated = cv2.dilate(thresh, kernel, iterations=1)
 
-    visualize([dilated],
+    f.visualize([dilated],
                 ["Dilated"], cmap='gray')
     contours, _ = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -45,10 +46,10 @@ def OCR_image(license_plate):
 
             cv2.rectangle(upscaled_license_plate, (x, y), (x + w, y + h), (0, 255, 0), 2)
     
-    visualize([hull],
+    f.visualize([hull],
                 ["Hull"], cmap='gray')
 
-    visualize([upscaled_license_plate],
+    f.visualize([upscaled_license_plate],
                 ["Segmented Characters"], cmap='gray')
     return characters
 
