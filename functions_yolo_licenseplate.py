@@ -1,68 +1,47 @@
 from ultralytics import YOLO
 import cv2
 import os
-import matplotlib.pyplot as plt
-import random
-from YOLO_Files.util import get_car, read_license_plate
 
-def yolo_plate_recognition(image_folder):
+def boundingbox(folder_path):
     # Load models
     coco_model = YOLO('yolov8n.pt')
-    license_plate_detector = YOLO('YOLO_Files\license_plate_detector.pt')
+    license_plate_detector = YOLO('YOLO_Files/license_plate_detector.pt')
+    """
+    Detects license plates in all images within a folder and returns the cropped license plate images.
 
-    # Specify the vehicle classes you want to detect
-    vehicles = [2, 3, 5, 7]  # 2: Automóvil;3: Motocicleta;5: Autobús;7: Camión
+    Parameters:
+    - folder_path (str): The path to the folder containing image files.
 
-    file_list = os.listdir(image_folder)
-    image_extensions = ['.jpg', '.jpeg', '.png']
-    image_files = [file for file in file_list if os.path.splitext(file)[1].lower() in image_extensions]
-    random_image = random.choice(image_files)
-    #full path
-    random_image_path = os.path.join(image_folder, random_image)
-    frame = cv2.imread(random_image_path)
+    Returns:
+    - results (dict): A dictionary where keys are image filenames and values are lists of cropped license plate images.
+    """
+    # Dictionary to hold results: {image_filename: [list_of_cropped_license_plate_images]}
+    results = {}
 
-    # Detect vehicles
-    detections = coco_model(frame)[0]
-    detections_ = []
-    blue_rectangle = None  # Variable to hold the blue rectangle coordinates
+    # Loop through all images in the folder
+    for image_file in os.listdir(folder_path):
+        if image_file.endswith(('.jpg')):  # Ensure we're processing image files only
+            image_path = os.path.join(folder_path, image_file)
+            frame = cv2.imread(image_path)
 
-    for detection in detections.boxes.data.tolist():
-        x1, y1, x2, y2, score, class_id = detection
+            if frame is None:
+                print(f"Error loading image: {image_file}")
+                continue  # Skip images that can't be loaded
 
+            # Suppress unnecessary logging by the YOLO model
+            license_plates = license_plate_detector(frame, verbose=False)[0]  # Set verbose to False
 
-        if int(class_id) in vehicles:
-            detections_.append([x1, y1, x2, y2, score])
+            # List to store cropped license plates for the current image
+            cropped_license_plates = []
 
-            # Draw bounding box around vehicles
-            cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
+            # Crop and save all detected license plates
+            for license_plate in license_plates.boxes.data.tolist():
+                x1, y1, x2, y2, score, class_id = license_plate
+                cropped_plate = frame[int(y1):int(y2), int(x1):int(x2)]  # Crop the detected license plate
+                cropped_license_plates.append(cropped_plate)  # Add to list
 
-    # Detect license plates
-    license_plates = license_plate_detector(frame)[0]
-    for license_plate in license_plates.boxes.data.tolist():
-        x1, y1, x2, y2, score, class_id = license_plate
+            # Only save results if any license plates were detected
+            if cropped_license_plates:
+                results[image_file] = cropped_license_plates
 
-        # Crop and process license plate
-        license_plate_crop = frame[int(y1):int(y2), int(x1):int(x2)]
-        license_plate_crop_gray = cv2.cvtColor(license_plate_crop, cv2.COLOR_BGR2GRAY)
-        _, license_plate_crop_thresh = cv2.threshold(license_plate_crop_gray, 64, 255, cv2.THRESH_BINARY_INV)
-
-        # Draw bounding box around license plates
-        cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (255, 0, 0), 2)
-
-    # Assuming the blue rectangle corresponds to a license plate or vehicle detection
-    if len(license_plates.boxes.data.tolist()) > 0:
-        # Get the first detected license plate as blue rectangle
-        blue_rectangle = license_plates.boxes.data.tolist()[0]  # Change index if needed
-        x1, y1, x2, y2, score, class_id = blue_rectangle
-
-        # Crop the blue rectangle region
-        blue_region = frame[int(y1):int(y2), int(x1):int(x2)]
-
-        # Display only the cropped blue rectangle using Matplotlib
-        plt.figure(figsize=(10, 6))
-        plt.imshow(cv2.cvtColor(blue_region, cv2.COLOR_BGR2RGB))
-        plt.axis('off')  # Hide axes
-        plt.title(f'Blue Rectangle - {random_image}')  # Display image title
-        plt.show()
-
-
+    return results
