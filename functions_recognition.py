@@ -1,5 +1,4 @@
 import cv2
-import sys
 import functions_licenseplate as f
 
 def OCR_image(license_plate):
