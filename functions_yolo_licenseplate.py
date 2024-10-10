@@ -1,12 +1,8 @@
 from ultralytics import YOLO
 import cv2
 import os
-import matplotlib.pyplot as plt
-import random
-from YOLO_Files.util import get_car, read_license_plate
-import matplotlib.pyplot as plt
 
-def yolo_plate_recognition(folder_path):
+def boundingbox(folder_path):
     # Load models
     coco_model = YOLO('yolov8n.pt')
     license_plate_detector = YOLO('YOLO_Files/license_plate_detector.pt')
