@@ -13,10 +13,10 @@ def display_images_with_plt(cropped_plates_dict):
     """
     for image_file, cropped_plates in cropped_plates_dict.items():
         for i, cropped_plate in enumerate(cropped_plates):
-            if i == 0:
+            if i == 0:#avoid getting other plates from the image, just the one we are interested
                 plt.figure(figsize=(5, 3))
                 plt.imshow(cv2.cvtColor(cropped_plate, cv2.COLOR_BGR2RGB))  # Convert BGR to RGB for correct color display
-                plt.title(f'Cropped Plate from {image_file} - {i+1}')
+                plt.title(f'Cropped Plate from {image_file}')
                 plt.axis('off')  # Hide axis for better visualization
                 plt.show()
         
