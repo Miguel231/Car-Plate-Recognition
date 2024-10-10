@@ -9,7 +9,6 @@ from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from PIL import Image
 
-
 def train_svm_and_get_accuracy(base_path):
     """
     Loads images from the specified folder, trains an SVM classifier, and returns the accuracy.

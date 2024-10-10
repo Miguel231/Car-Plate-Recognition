@@ -28,9 +28,9 @@ def OCR_image(license_plate):
 
     sorted_contours = sorted(contours, key=lambda contour: cv2.boundingRect(contour)[0])
 
-    min_height = 80
-    min_width = 16
-    max_aspect_ratio = 1
+    min_height = 10
+    min_width = 5
+    max_aspect_ratio = 2
 
     characters = []
     for contour in sorted_contours:
@@ -44,9 +44,12 @@ def OCR_image(license_plate):
             characters.append(char)
 
             cv2.rectangle(upscaled_license_plate, (x, y), (x + w, y + h), (0, 255, 0), 2)
+    
+    visualize([hull],
+                ["Hull"], cmap='gray')
 
     visualize([upscaled_license_plate],
-                ["Segmented Characters (with convex hull)"], cmap='gray')
+                ["Segmented Characters"], cmap='gray')
     return characters
 
 
