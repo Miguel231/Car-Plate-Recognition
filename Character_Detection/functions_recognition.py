@@ -11,7 +11,6 @@ from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from PIL import Image
 
-
 # Function to visualize images side by side
 def visualize(images, titles, suptitle=None, cmap=None):
     plt.figure(figsize=(15, 5))
