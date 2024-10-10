@@ -34,37 +34,45 @@ def combine_image_folders(source_folders, destination_folder):
         else:
             print(f"The folder {folder} does not exist.")
 
-def train_test(source_folder, train_folder, test_folder, test_size=0.3, random_state=42):
+import os
+import shutil
+import numpy as np
+from sklearn.model_selection import train_test_split
+
+def train_test(source_folder, train_folder, test_folder, val_folder, random_state=42):
     """
-    Split files from the source folder into training and testing folders.
+    Split files from the source folder into training, testing, and validation folders with fixed indices.
     
     Args:
         source_folder (str): Path to the folder with the original files.
         train_folder (str): Path to the folder where training files will be copied.
         test_folder (str): Path to the folder where test files will be copied.
-        test_size (float): Proportion of the dataset to be used for testing (default is 0.3).
+        val_folder (str): Path to the folder where validation files will be copied.
         random_state (int): Seed for random number generator to ensure reproducibility.
     """
-    # Create train and test directories if they don't exist
     os.makedirs(train_folder, exist_ok=True)
     os.makedirs(test_folder, exist_ok=True)
-
-    # Get all files in the source folder
+    os.makedirs(val_folder, exist_ok=True)
     files = [f for f in os.listdir(source_folder) if os.path.isfile(os.path.join(source_folder, f))]
-
-    # Split the files into train and test sets
-    train_files, test_files = train_test_split(files, test_size=test_size, random_state=random_state)
-
-    # Function to move files
-    def move_files(file_list, destination_folder):
-        for file_name in file_list:
+    n_files = len(files)
+    np.random.seed(random_state)
+    indices = np.random.permutation(n_files)
+    train_size = int(0.6 * n_files)
+    test_size = int(0.3 * n_files)
+    train_indices = indices[:train_size]
+    test_indices = indices[train_size:train_size + test_size]
+    val_indices = indices[train_size + test_size:]
+    def move_files(indices, destination_folder):
+        for idx in indices:
+            file_name = files[idx]
             source_path = os.path.join(source_folder, file_name)
             dest_path = os.path.join(destination_folder, file_name)
             shutil.copy2(source_path, dest_path)  # Use shutil.copy2 to preserve file metadata
             print(f'Copied {file_name} to {destination_folder}')
 
-    # Move the files
-    move_files(train_files, train_folder)
-    move_files(test_files, test_folder)
+    # Move the files to their respective folders
+    move_files(train_indices, train_folder)
+    move_files(test_indices, test_folder)
+    move_files(val_indices, val_folder)
 
-    print(f"Data split complete: {len(train_files)} training files, {len(test_files)} testing files.")
+    print(f"Data split complete: {len(train_indices)} training files, {len(test_indices)} testing files, {len(val_indices)} validation files.")
