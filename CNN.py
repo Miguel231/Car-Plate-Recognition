@@ -2,6 +2,13 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torchvision
+import torchvision.transforms as transforms
+from torch.utils.data import DataLoader
+from torchvision.datasets import ImageFolder
+from torch.utils.data import DataLoader, random_split
+from PIL import Image
+import numpy as np
+import matplotlib.pyplot as plt
 
 # Configurar dispositivo (GPU si está disponible)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -83,5 +90,39 @@ def evaluate_model(model, test_loader):
     accuracy = 100 * correct / total
     print(f"Test Accuracy: {accuracy}%")
 
-# Llamar a la función de evaluación (asume que tienes un `test_loader`)
-# evaluate_model(model, test_loader)
+# Función para preprocesar la imagen de un carácter
+def preprocess_character_image(char_image):
+    transform = transforms.Compose([
+        transforms.Grayscale(num_output_channels=1),  # Convertir a escala de grises
+        transforms.Resize((28, 28)),                  # Redimensionar a 28x28 píxeles
+        transforms.ToTensor(),                        # Convertir a tensor
+        transforms.Normalize((0.5,), (0.5,))          # Normalizar entre -1 y 1
+    ])
+    
+    char_image = Image.fromarray(char_image)  # Convertir array NumPy a imagen PIL
+    return transform(char_image).unsqueeze(0)  # Añadir una dimensión extra para el batch
+
+# Función para predecir los caracteres en una lista de imágenes de caracteres
+def predict_characters(model, character_list, label_encoder):
+    model.eval()  # Cambiar a modo de evaluación
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device)
+
+    plate = ''  # Guardar la matrícula predicha
+
+    for i, char_image in enumerate(character_list):
+        # Preprocesar cada imagen de carácter
+        preprocessed_image = preprocess_character_image(char_image).to(device)
+
+        with torch.no_grad():  # No necesitamos gradientes en evaluación
+            outputs = model(preprocessed_image)  # Pasar la imagen por el modelo
+            _, predicted_index = torch.max(outputs, 1)  # Obtener la predicción
+            predicted_label = label_encoder.inverse_transform([predicted_index.item()])[0]  # Decodificar la predicción
+
+            # Agregar el carácter predicho a la cadena de la matrícula
+            plate += predicted_label
+
+    return plate
+
+
+
