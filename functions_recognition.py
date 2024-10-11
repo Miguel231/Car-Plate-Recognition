@@ -192,6 +192,22 @@ def easy_ocr_method(license_plate_image):
         license_plate_text += text
 
     return license_plate_text
+
+def best_segmentation_method(method1, method2):
+
+    # Almacenar los resultados con la cantidad de caracteres detectados
+    results = [
+        (method1, len(method1)),
+        (method2, len(method2))
+        #,(result3, len(result3))
+    ]
+
+    valid_results = [result for result in results if result[1] >= 7]
+
+    if valid_results:
+        return min(valid_results, key=lambda x: x[1])[0]
+
+    return max(results, key=lambda x: x[1])[0]
     
 def filter_spain_plates(spain):
     number_to_letter = {'6': 'G', '8': 'B', 
