@@ -2,6 +2,8 @@ import cv2
 import functions_licenseplate as f
 import os
 import pandas as pd
+import easyocr
+import matplotlib.pyplot as plt
 
 def count_files_in_folders(starting_path, output_excel):
     folder_data = []
@@ -71,7 +73,7 @@ def OCR_image(license_plate, t = 120, min_h = 80, min_w = 15, min_ar = 0.8, max_
     f.visualize([upscaled_license_plate],
                 ["Segmented Characters"], cmap='gray')
     
-    return characters
+    return upscaled_license_plate, characters
 
 """
 
@@ -165,6 +167,32 @@ def segment_characters(image):
     
     return char_list
 
+"""
+
+EASY OCR
+
+"""
+
+import easyocr
+import cv2
+from PIL import Image
+from PIL import ImageOps
+
+def easy_ocr_method(license_plate_image):
+    # Initialize EasyOCR Reader
+    reader = easyocr.Reader(['en'])
+
+    # Use EasyOCR to detect text
+    results = reader.readtext(license_plate_image)
+
+    # Print the detected results
+    license_plate_text = ""
+    for (bbox, text, prob) in results:
+        print(f"Detected Text: {text}, Probability: {prob}")
+        license_plate_text += text
+
+    return license_plate_text
+    
 def filter_spain_plates(spain):
     number_to_letter = {'6': 'G', '8': 'B', 
                         '1': 'I', '2': 'Z', '0': 'O'}
