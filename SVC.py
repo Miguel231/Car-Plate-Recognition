@@ -63,7 +63,7 @@ def train_svm_and_get_accuracy(base_path):
     train_images = scaler.fit_transform(train_images)
     test_images = scaler.transform(test_images)
 
-    clf = svm.SVC(kernel='linear')  # Linear kernel
+    clf = svm.SVC(kernel='linear', probability=True)  # Linear kernel
     clf.fit(train_images, train_labels)
 
     test_predictions = clf.predict(test_images)
@@ -82,12 +82,24 @@ def test_preprocessed_images_with_plot(clf, scaler, character_list, label_encode
         img_array = np.array(img_resized).flatten()
 
         img_array_scaled = scaler.transform([img_array])
+        ###################################################################
+        probs = clf.predict_proba(img_array_scaled)[0]  
+        max_prob = max(probs)
+        print(max_prob)
 
+        if max_prob < 0.095:
+            plate += '?'  
+            continue  
+        
+        predicted_label_index = np.argmax(probs)
+        predicted_label = label_encoder.inverse_transform([predicted_label_index])[0]
+        #######################################################################
+
+        """
         #prediction using the trained SVM model
         predicted_label_index = clf.predict(img_array_scaled)[0]
-
         predicted_label = label_encoder.inverse_transform([predicted_label_index])[0]
-
+        """
         #save the changes
         #output_path = os.path.join("/content/drive/MyDrive/LICENSE_PLATES_RECOGITION_L&V/Dataset Characters/", f'{predicted_label}/caracter_{i}.png')
         #cv2.imwrite(output_path, characters[i])
