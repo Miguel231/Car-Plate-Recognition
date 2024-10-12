@@ -1,3 +1,4 @@
+import os
 import torch
 import torch.nn as nn
 from sklearn.metrics import classification_report, confusion_matrix
@@ -5,63 +6,12 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 
-# Function to evaluate the CNN model
-def evaluate_cnn_model(cnn_model, test_loader, criterion):
-    cnn_model.eval()  # Set model to evaluation mode
-    correct = 0
-    total = 0
-    all_labels = []
-    all_preds = []
-    running_loss = 0.0
-    
-    with torch.no_grad():
-        for images, labels in test_loader:
-            images = images.to(device)
-            labels = labels.to(device)
-            
-            # Forward pass
-            outputs = cnn_model(images)
-            _, predicted = torch.max(outputs.data, 1)
-            
-            # Track predictions and actual labels for confusion matrix
-            all_preds.extend(predicted.cpu().numpy())
-            all_labels.extend(labels.cpu().numpy())
-            
-            # Calculate the loss
-            loss = criterion(outputs, labels)
-            running_loss += loss.item()
-            
-            # Calculate accuracy
-            total += labels.size(0)
-            correct += (predicted == labels).sum().item()
-
-    accuracy = correct / total
-    avg_loss = running_loss / len(test_loader)
-    
-    return all_labels, all_preds, accuracy, avg_loss
-
-from sklearn.svm import SVC
-
-# Function to evaluate the SVM model
-def evaluate_svm_model(svm_model, test_features, test_labels):
-    # Predict using SVM
-    svm_preds = svm_model.predict(test_features)
-    
-    # Calculate metrics
-    accuracy = np.mean(svm_preds == test_labels)
-    
-    return test_labels, svm_preds, accuracy
-
-from sklearn.metrics import classification_report
-
-# Function to print evaluation metrics
-def print_evaluation_metrics(true_labels, predictions, model_name):
+def print_evaluation_metrics(true_labels, predictions, model_name, class_names):
     print(f"Evaluation Metrics for {model_name}:")
     report = classification_report(true_labels, predictions, target_names=class_names)
     print(report)
 
-# Function to plot confusion matrix
-def plot_confusion_matrix(true_labels, predictions, title):
+def plot_confusion_matrix(true_labels, predictions, title, class_names):
     cm = confusion_matrix(true_labels, predictions)
     plt.figure(figsize=(10, 7))
     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=class_names, yticklabels=class_names)
@@ -70,14 +20,15 @@ def plot_confusion_matrix(true_labels, predictions, title):
     plt.ylabel("True Labels")
     plt.show()
 
-def plot_metrics_comparison(cnn_metrics, svm_metrics, metric_names):
-    metrics_cnn, metrics_svm = cnn_metrics, svm_metrics
+def plot_metrics_comparison(cnn_metrics, svm_metrics, ocr_metrics,metric_names):
+    metrics_cnn, metrics_svm, metrics_ocr = cnn_metrics, svm_metrics, ocr_metrics
     x = np.arange(len(metric_names))  # the label locations
     width = 0.35  # the width of the bars
 
     fig, ax = plt.subplots()
     rects1 = ax.bar(x - width/2, metrics_cnn, width, label='CNN')
     rects2 = ax.bar(x + width/2, metrics_svm, width, label='SVM')
+    rects3 = ax.bar(x + width/2, metrics_ocr, width, label='OCR')
 
     # Add labels, title, and custom x-axis tick labels
     ax.set_ylabel('Scores')
@@ -88,36 +39,59 @@ def plot_metrics_comparison(cnn_metrics, svm_metrics, metric_names):
 
     plt.show()
 
-import pandas as pd
 
-# Function to generate a summary table
-def generate_summary_table(cnn_metrics, svm_metrics, metric_names):
-    summary_data = {
-        'Metric': metric_names,
-        'CNN': cnn_metrics,
-        'SVM': svm_metrics
-    }
-    
-    df = pd.DataFrame(summary_data)
-    print(df)
+# Function to load ground truth labels from image filenames
+def load_ground_truth_from_filenames(image_dir):
+    ground_truth = []
+    for image_file in os.listdir(image_dir):
+        if image_file.endswith('.jpg'):
+            label = os.path.splitext(image_file)[0]  
+            ground_truth.append(label)
+    return ground_truth
 
-def run_full_evaluation(cnn_model, svm_model, test_loader, test_features, test_labels, class_names):
-    criterion = nn.CrossEntropyLoss()
+# Function to load predictions from a .txt file
+def load_predictions_from_txt(txt_file):
+    predictions = []
+    with open(txt_file, 'r') as file:
+        for line in file:
+            prediction = line.strip()  
 
-    # Evaluate CNN Model
-    cnn_true_labels, cnn_preds, cnn_accuracy, cnn_loss = evaluate_cnn_model(cnn_model, test_loader, criterion)
-    print_evaluation_metrics(cnn_true_labels, cnn_preds, "CNN")
-    plot_confusion_matrix(cnn_true_labels, cnn_preds, "CNN License Plate Prediction")
+            if prediction.startswith("E -") or prediction.startswith("E-"):
+                prediction = prediction.replace("E -", "").replace("E-", "").strip()
+
+            if len(prediction) >= 7:
+                prediction = prediction[:7].upper()  
+                print(prediction)
+                predictions.append(prediction)
+            elif len(prediction) == 7:
+                predictions.append(prediction.upper()) 
     
-    # Evaluate SVM Model
-    svm_true_labels, svm_preds, svm_accuracy = evaluate_svm_model(svm_model, test_features, test_labels)
-    print_evaluation_metrics(svm_true_labels, svm_preds, "SVM")
-    plot_confusion_matrix(svm_true_labels, svm_preds, "SVM License Plate Prediction")
-    
-    # Comparing Metrics
-    metric_names = ['Accuracy', 'Precision', 'Recall', 'F1-score']
-    cnn_metrics = [cnn_accuracy]  # Add precision, recall, F1-score to this list after calculating them
-    svm_metrics = [svm_accuracy]  # Add precision, recall, F1-score to this list after calculating them
-    
-    plot_metrics_comparison(cnn_metrics, svm_metrics, metric_names)
-    generate_summary_table(cnn_metrics, svm_metrics, metric_names)
+    return predictions
+
+
+
+def evaluate_predictions(ground_truth, predictions, model_name, class_names):
+    print_evaluation_metrics(ground_truth, predictions, model_name, class_names)
+    plot_confusion_matrix(ground_truth, predictions, model_name, class_names)
+
+
+def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, class_names):
+    ground_truth = load_ground_truth_from_filenames(image_dir)
+    svm_predictions = load_predictions_from_txt(svm_txt)
+    cnn_predictions = load_predictions_from_txt(cnn_txt)
+    ocr_predictions = load_predictions_from_txt(ocr_txt)
+    evaluate_predictions(ground_truth, svm_predictions, "SVM", class_names)
+    evaluate_predictions(ground_truth, cnn_predictions, "CNN", class_names)
+    evaluate_predictions(ground_truth, ocr_predictions, "OCR", class_names)
+
+    svm_accuracy = np.mean([gt == pred for gt, pred in zip(ground_truth, svm_predictions)])
+    cnn_accuracy = np.mean([gt == pred for gt, pred in zip(ground_truth, cnn_predictions)])
+    ocr_accuracy = np.mean([gt == pred for gt, pred in zip(ground_truth, ocr_predictions)])
+
+    metric_names = ['Accuracy']
+    cnn_metrics = [cnn_accuracy]
+    svm_metrics = [svm_accuracy]
+    ocr_metrics = [ocr_accuracy]
+
+    plot_metrics_comparison(cnn_metrics, svm_metrics, ocr_metrics, metric_names)
+

@@ -84,12 +84,11 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
-# Find contours and filter them based on size constraints
+
 def find_contours(dimensions, img):
-    # Find all contours in the image
+
     cntrs, _ = cv2.findContours(img.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    
-    # Filter contours based on the provided size constraints
+
     lower_width = dimensions[0]
     upper_width = dimensions[1]
     lower_height = dimensions[2]
@@ -121,8 +120,7 @@ def find_contours(dimensions, img):
             char_copy[:, 0:2 ] = 0
             char_copy[42:44, : ] = 0
             char_copy[:, 22:24 ] = 0
-            
-            # Store character image
+
             img_res.append(char_copy)
     
     # Return sorted contours based on the x-coordinate (left-to-right)
@@ -134,14 +132,12 @@ def find_contours(dimensions, img):
     
     return img_res
 
-# Segment characters from the license plate image
+
 def segment_characters(image):
-    # Resize image to fixed dimensions
+
     img_lp = cv2.resize(image, (333, 75))
     img_gray_lp = cv2.cvtColor(img_lp, cv2.COLOR_BGR2GRAY)
-    # Apply Otsu's threshold to get a binary image
     _, img_binary_lp = cv2.threshold(img_gray_lp, 200, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    # Erode and dilate image to remove noise
     img_binary_lp = cv2.erode(img_binary_lp, (3, 3))
     img_binary_lp = cv2.dilate(img_binary_lp, (3, 3))
     

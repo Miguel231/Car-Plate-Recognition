@@ -11,12 +11,12 @@ FIRST LICENSE PLATE (EL DE LA MERI)
 
 """
 
-# Function to visualize images side by side
+
 def visualize(images, titles, suptitle=None, cmap=None):
     plt.figure(figsize=(15, 5))
     for i in range(len(images)):
         plt.subplot(1, len(images), i + 1)
-        plt.imshow(images[i], cmap=cmap if i == 1 else 'gray')  # Show corners in color, grayscale in original
+        plt.imshow(images[i], cmap=cmap if i == 1 else 'gray')  
         plt.title(titles[i])
         plt.axis('off')
     if suptitle:
@@ -107,24 +107,20 @@ def four_point_transform(image, pts):
     rect = order_points(pts)
     (tl, tr, br, bl) = rect
 
-    # Compute the width of the new image
     widthA = np.linalg.norm(br - bl)
     widthB = np.linalg.norm(tr - tl)
     maxWidth = max(int(widthA), int(widthB))
 
-    # Compute the height of the new image
     heightA = np.linalg.norm(tr - br)
     heightB = np.linalg.norm(tl - bl)
     maxHeight = max(int(heightA), int(heightB))
 
-    # Destination points for the perspective transform
     dst = np.array([
         [0, 0],
         [maxWidth - 1, 0],
         [maxWidth - 1, maxHeight - 1],
         [0, maxHeight - 1]], dtype="float32")
 
-    # Compute the perspective transform matrix and apply it
     M = cv2.getPerspectiveTransform(rect, dst)
     warped = cv2.warpPerspective(image, M, (maxWidth, maxHeight))
 
@@ -166,8 +162,8 @@ def plate_recognition(image_folder):
     image = cv2.imread(random_image_path)
 
     #define range of blue europe license plate
-    lower_blue = np.array([100, 100, 100])  # Limit blue inferior
-    upper_blue = np.array([140, 255, 255])  # Limit blue superior 
+    lower_blue = np.array([100, 100, 100])  
+    upper_blue = np.array([140, 255, 255])  
 
     #HSV space color
     hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
@@ -186,16 +182,15 @@ def plate_recognition(image_folder):
             #height must be at least 1.4 times greater than the width
             if h >= 1.4 * w:
                 #to capture the entire license plate
-                extended_width = 520  #Total width of the license plate in mm
+                extended_width = 520  
                 scale_factor = extended_width / 40  #we assume the width of the detected blue rectangle is 40 mm
                 new_width = int(w * scale_factor)
 
                 new_x = x
                 new_y = y
                 if new_x + new_width >= image.shape[1]:
-                    new_width = image.shape[1] - new_x  #adjust the width to not exceed the image
+                    new_width = image.shape[1] - new_x  
 
-                #region of interest
                 roi = image[new_y:new_y + h, new_x:new_x + new_width]
 
                 show_image(roi, title=f"License Plate Region: {random_image_path}")
@@ -208,7 +203,6 @@ YOLO LICENSE PLATE (EL DE LA LARA)
 """
 
 def boundingbox(folder_path):
-    # Load models
     coco_model = YOLO('yolov8n.pt')
     license_plate_detector = YOLO('YOLO_Files/license_plate_detector.pt')
 
@@ -224,15 +218,15 @@ def boundingbox(folder_path):
                 continue  # Skip images that can't be loaded
 
             # Suppress unnecessary logging by the YOLO model
-            license_plates = license_plate_detector(frame, verbose=False)[0]  # Set verbose to False
+            license_plates = license_plate_detector(frame, verbose=False)[0]  
 
             cropped_license_plates = []
 
             # Crop and save all detected license plates
             for license_plate in license_plates.boxes.data.tolist():
                 x1, y1, x2, y2, score, class_id = license_plate
-                cropped_plate = frame[int(y1):int(y2), int(x1):int(x2)]  # Crop the detected license plate
-                cropped_license_plates.append(cropped_plate)  # Add to list
+                cropped_plate = frame[int(y1):int(y2), int(x1):int(x2)]  
+                cropped_license_plates.append(cropped_plate) 
 
             # Only save results if any license plates were detected
             if cropped_license_plates:

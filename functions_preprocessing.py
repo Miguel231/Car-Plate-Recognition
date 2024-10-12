@@ -2,7 +2,6 @@ import os
 import shutil
 from sklearn.model_selection import train_test_split
 import numpy as np
-from sklearn.model_selection import train_test_split
 
 def combine_image_folders(source_folders, destination_folder):
     if os.path.exists(destination_folder):
@@ -58,7 +57,6 @@ def train_test(source_folder, train_folder, test_folder, val_folder, random_stat
 def erase_double_images(folder_path):
     # Loop through each file in the folder
     for filename in os.listdir(folder_path):
-        # Check if the file has '(1)' in its name
         if '(1)' in filename:
             file_path = os.path.join(folder_path, filename)
             try:
