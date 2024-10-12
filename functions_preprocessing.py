@@ -5,13 +5,6 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 
 def combine_image_folders(source_folders, destination_folder):
-    """
-    Combines images from multiple folders into a single destination folder.
-
-    Parameters:
-    - source_folders: List of paths to the source folders containing images.
-    - destination_folder: Path to the destination folder where all images will be copied.
-    """
     if os.path.exists(destination_folder):
         for filename in os.listdir(destination_folder):
             file_path = os.path.join(destination_folder, filename)
@@ -36,16 +29,6 @@ def combine_image_folders(source_folders, destination_folder):
             print(f"The folder {folder} does not exist.")
 
 def train_test(source_folder, train_folder, test_folder, val_folder, random_state=42):
-    """
-    Split files from the source folder into training, testing, and validation folders with fixed indices.
-    
-    Args:
-        source_folder (str): Path to the folder with the original files.
-        train_folder (str): Path to the folder where training files will be copied.
-        test_folder (str): Path to the folder where test files will be copied.
-        val_folder (str): Path to the folder where validation files will be copied.
-        random_state (int): Seed for random number generator to ensure reproducibility.
-    """
     os.makedirs(train_folder, exist_ok=True)
     os.makedirs(test_folder, exist_ok=True)
     os.makedirs(val_folder, exist_ok=True)

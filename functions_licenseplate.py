@@ -24,39 +24,21 @@ def visualize(images, titles, suptitle=None, cmap=None):
     plt.show()
 
 def detect_and_crop_license_plate(binary_image, original_image):
-    """
-    Detects and crops the license plate from the given images.
-
-    Parameters:
-    - binary_image: Preprocessed binary image.
-    - original_image: The original input image.
-
-    Returns:
-    - license_plate: Cropped image of the detected license plate or None if not found.
-    - img_with_contour: Image of the car with the detected license plate contour drawn or None if not found.
-    """
-    # Find contours in the binary image
     contours, _ = cv2.findContours(binary_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-    # Sort contours based on area in descending order and take top 10
     contours = sorted(contours, key=cv2.contourArea, reverse=True)[:10]
 
     license_plate_contour = None
 
     for contour in contours:
-        # Approximate the contour to a polygon
         peri = cv2.arcLength(contour, True)
         approx = cv2.approxPolyDP(contour, 0.018 * peri, True)
 
-        # Check if the approximated contour has 4 points (quadrilateral)
         if len(approx) == 4:
-            # Compute the bounding box and aspect ratio
             x, y, w, h = cv2.boundingRect(approx)
             aspect_ratio = w / float(h)
 
-            # Define a range for aspect ratio typical of license plates
             if 2 <= aspect_ratio <= 6:
-                # Further check for parallelism of edges
                 angles = []
                 for i in range(4):
                     pt1 = approx[i][0]
@@ -71,18 +53,14 @@ def detect_and_crop_license_plate(binary_image, original_image):
 
                 if all(80 <= angle <= 100 for angle in angles):
                     license_plate_contour = approx
-                    break  # Stop once the likely license plate is found
+                    break  
 
     if license_plate_contour is not None:
-        # Draw the detected contour on the image (for visualization)
         img_copy = original_image.copy()
         cv2.drawContours(img_copy, [license_plate_contour], -1, (0, 255, 0), 3)
 
-        # Obtain a top-down view of the license plate using perspective transform
         license_plate = four_point_transform(original_image, license_plate_contour.reshape(4, 2))
 
-        # Display the results
-        # Use cv2_imshow if in Jupyter; otherwise, use cv2.imshow
         try:
             cv2.imshow(license_plate)
             cv2.imshow(img_copy)
@@ -93,7 +71,6 @@ def detect_and_crop_license_plate(binary_image, original_image):
             cv2.destroyAllWindows()
 
         print("License plate detected")
-        # Return both the cropped license plate and the image with contour
         return license_plate, img_copy
 
     else:
@@ -109,18 +86,13 @@ def angle_between(v1, v2):
     unit_v1 = v1 / np.linalg.norm(v1) if np.linalg.norm(v1) != 0 else v1
     unit_v2 = v2 / np.linalg.norm(v2) if np.linalg.norm(v2) != 0 else v2
     dot_product = np.dot(unit_v1, unit_v2)
-    # Clamp the dot_product to avoid numerical issues with arccos
     dot_product = np.clip(dot_product, -1.0, 1.0)
     angle = np.arccos(dot_product)
     return np.degrees(angle)
 
 def order_points(pts):
-    """
-    Orders points in the order: top-left, top-right, bottom-right, bottom-left.
-    """
     rect = np.zeros((4, 2), dtype="float32")
 
-    # Sum and difference to find corners
     s = np.sum(pts, axis=1)
     diff = np.diff(pts, axis=1)
 
@@ -132,9 +104,6 @@ def order_points(pts):
     return rect
 
 def four_point_transform(image, pts):
-    """
-    Applies a perspective transform to obtain a top-down view of the detected license plate.
-    """
     rect = order_points(pts)
     (tl, tr, br, bl) = rect
 
@@ -168,13 +137,6 @@ SECOND LICENSE PLATE (EL DE LA LARA)
 """
 
 def display_and_save_cropped_plates(cropped_plates_dict, save_folder):
-    """
-    Displays the cropped license plate images using matplotlib (plt) and saves them to the specified folder.
-
-    Parameters:
-    - cropped_plates_dict (dict): Dictionary where keys are image filenames and values are lists of cropped license plate images.
-    - save_folder (str): Folder path where the cropped images will be saved.
-    """
     # Ensure the save directory exists
     if not os.path.exists(save_folder):
         os.makedirs(save_folder)
@@ -182,7 +144,6 @@ def display_and_save_cropped_plates(cropped_plates_dict, save_folder):
     for image_file, cropped_plates in cropped_plates_dict.items():
         for i, cropped_plate in enumerate(cropped_plates):
             if i == 0:  # avoid getting other plates from the image, just the one we are interested in
-                # Save the cropped image to the specified folder
                 save_path = os.path.join(save_folder, f"{image_file}")
                 cv2.imwrite(save_path, cropped_plate)
                 print(f"Saved cropped plate to {save_path}")
@@ -201,7 +162,6 @@ def plate_recognition(image_folder):
     image_extensions = ['.jpg', '.jpeg', '.png']
     image_files = [file for file in file_list if os.path.splitext(file)[1].lower() in image_extensions]
     random_image = random.choice(image_files)
-    #full path
     random_image_path = os.path.join(image_folder, random_image)
     image = cv2.imread(random_image_path)
 
@@ -238,7 +198,6 @@ def plate_recognition(image_folder):
                 #region of interest
                 roi = image[new_y:new_y + h, new_x:new_x + new_width]
 
-                #show
                 show_image(roi, title=f"License Plate Region: {random_image_path}")
                 print(f"File: {random_image_path}, Coordinates: ({new_x}, {new_y}, {new_width}, {h}), Region dimensions: {roi.shape}")
     
@@ -252,21 +211,11 @@ def boundingbox(folder_path):
     # Load models
     coco_model = YOLO('yolov8n.pt')
     license_plate_detector = YOLO('YOLO_Files/license_plate_detector.pt')
-    """
-    Detects license plates in all images within a folder and returns the cropped license plate images.
 
-    Parameters:
-    - folder_path (str): The path to the folder containing image files.
-
-    Returns:
-    - results (dict): A dictionary where keys are image filenames and values are lists of cropped license plate images.
-    """
     # Dictionary to hold results: {image_filename: [list_of_cropped_license_plate_images]}
     results = {}
-
-    # Loop through all images in the folder
     for image_file in os.listdir(folder_path):
-        if image_file.endswith(('.jpg')):  # Ensure we're processing image files only
+        if image_file.endswith(('.jpg')): 
             image_path = os.path.join(folder_path, image_file)
             frame = cv2.imread(image_path)
 
@@ -277,7 +226,6 @@ def boundingbox(folder_path):
             # Suppress unnecessary logging by the YOLO model
             license_plates = license_plate_detector(frame, verbose=False)[0]  # Set verbose to False
 
-            # List to store cropped license plates for the current image
             cropped_license_plates = []
 
             # Crop and save all detected license plates

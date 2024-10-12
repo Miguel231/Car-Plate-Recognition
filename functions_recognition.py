@@ -59,7 +59,6 @@ def OCR_image(license_plate, t = 120, min_h = 80, min_w = 15, min_ar = 0.8, max_
     for contour in sorted_contours:
         hull = cv2.convexHull(contour)
         x, y, w, h = cv2.boundingRect(hull)
-        #x1, y1, w1, h1 = cv2.boundingRect(contour)
         aspect_ratio = float(w)/h
         area = cv2.contourArea(contour)
 
@@ -249,14 +248,6 @@ def filter_spain_plates(spain):
     else:
         return correct
 
-
-"""
-path = 'G://.shortcut-targets-by-id//1xjrivG-T7lph1wnu1KGxnsESEs0U5vvV//LICENSE_PLATES_RECOGITION_L&V//GITHUB_trainset_croppedimages//6011HHV.jpg'
-image = cv2.imread(path)
-car = image.copy()
-characters = OCR_image(license_plate = image, t = 200 ,min_h = 80, min_w = 15, min_ar = 0.2, max_ar = 1)
-
-"""
 
 """
 
