@@ -9,10 +9,10 @@ def print_evaluation_metrics(true_labels, predictions, model_name, class_names):
     report = classification_report(true_labels, predictions, target_names=class_names)
     print(report)
 
-def plot_confusion_matrix(true_labels, predictions, title, class_names):
+def plot_confusion_matrix(true_labels, predictions, title):
     cm = confusion_matrix(true_labels, predictions)
     plt.figure(figsize=(10, 7))
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=class_names, yticklabels=class_names)
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
     plt.title(f"Confusion Matrix - {title}")
     plt.xlabel("Predicted Labels")
     plt.ylabel("True Labels")
