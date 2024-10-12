@@ -67,6 +67,11 @@ def load_predictions_from_txt(txt_file):
     return predictions
 
 def evaluate_predictions(ground_truth, predictions, model_name, class_names):
+    if len(ground_truth) != len(predictions):
+        print(f"Length mismatch for {model_name}:")
+        print(f"Ground Truth length: {len(ground_truth)}")
+        print(f"Predictions length: {len(predictions)}")
+        return
     print_evaluation_metrics(ground_truth, predictions, model_name, class_names)
     match_count = 0
     total_count = 0
