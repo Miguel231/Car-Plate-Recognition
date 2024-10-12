@@ -53,18 +53,21 @@ def load_predictions_from_txt(txt_file):
     with open(txt_file, 'r') as file:
         for line in file:
             prediction = line.strip()  
+            if not prediction:
+                predictions.append("U")
+                continue 
 
             if prediction.startswith("E -") or prediction.startswith("E-"):
                 prediction = prediction.replace("E -", "").replace("E-", "").strip()
 
-            if len(prediction) >= 7:
+            if len(prediction) > 7:
                 prediction = prediction[:7].upper()  
-                print(prediction)
+                print(prediction) 
                 predictions.append(prediction)
             elif len(prediction) == 7:
                 predictions.append(prediction.upper()) 
-  
-    return predictions
+
+    return predictions 
 
 def evaluate_predictions(ground_truth, predictions, model_name):
     gt_length = len(ground_truth)
