@@ -42,10 +42,8 @@ def plot_metrics_comparison(cnn_metrics, svm_metrics, ocr_metrics,cnn_metrics_fi
 def load_ground_truth_from_filenames(image_dir):
     ground_truth = []
     for image_file in os.listdir(image_dir):
-        print("IMAGE_FILE", image_file)
         if image_file.endswith('.jpg'):
             label = os.path.splitext(image_file)[0]  
-            print("GROUNDTRUTH:",label)
             ground_truth.append(label)
     return ground_truth
 
@@ -65,15 +63,26 @@ def load_predictions_from_txt(txt_file):
                 predictions.append(prediction)
             elif len(prediction) == 7:
                 predictions.append(prediction.upper()) 
-    
+  
     return predictions
-
-
 
 def evaluate_predictions(ground_truth, predictions, model_name, class_names):
     print_evaluation_metrics(ground_truth, predictions, model_name, class_names)
-    plot_confusion_matrix(ground_truth, predictions, model_name, class_names)
+    match_count = 0
+    total_count = 0
 
+    for gt, pred in zip(ground_truth, predictions):
+        if len(pred) > len(gt):
+            pred = pred[:len(gt)]  
+        for g_char, p_char in zip(gt, pred):
+            if g_char == p_char:
+                match_count += 1
+        
+        total_count += len(gt)  
+
+    print(f"{model_name} - Correctly identified characters: {match_count} out of {total_count}")
+
+    plot_confusion_matrix(ground_truth, predictions, model_name, class_names)
 
 def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_fil, cnn_txt_fil, ocr_txt_fil,class_names):
     ground_truth = load_ground_truth_from_filenames(image_dir)
