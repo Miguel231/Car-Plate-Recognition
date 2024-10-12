@@ -66,15 +66,17 @@ def load_predictions_from_txt(txt_file):
   
     return predictions
 
-def evaluate_predictions(ground_truth, predictions, model_name, class_names):
-    # Check lengths
+def evaluate_predictions(ground_truth, predictions, model_name):
     gt_length = len(ground_truth)
     pred_length = len(predictions)
+
+    # Manejo de longitudes desiguales
     if gt_length != pred_length:
         print(f"Length mismatch for {model_name}:")
         print(f"Ground Truth length: {gt_length}")
         print(f"Predictions length: {pred_length}")
 
+        # Ajustar a la longitud más corta
         min_length = min(gt_length, pred_length)
         ground_truth = ground_truth[:min_length]
         predictions = predictions[:min_length]
@@ -82,10 +84,19 @@ def evaluate_predictions(ground_truth, predictions, model_name, class_names):
         print(f"Adjusted Ground Truth length: {len(ground_truth)}")
         print(f"Adjusted Predictions length: {len(predictions)}")
 
+    # Clases únicas en las predicciones y ground truth
+    unique_gt_classes = set(ground_truth)
+    unique_pred_classes = set(predictions)
+
+    print(f"Unique classes in Ground Truth: {unique_gt_classes}")
+    print(f"Unique classes in Predictions: {unique_pred_classes}")
+
+    # Contadores para evaluaciones
     true_counts = []
     false_counts = []
 
     for gt, pred in zip(ground_truth, predictions):
+        # Identificación de coincidencias
         match_length = sum(1 for a, b in zip(gt, pred) if a == b)
         true_counts.append(match_length)
         false_counts.append(len(gt) - match_length)
@@ -94,11 +105,11 @@ def evaluate_predictions(ground_truth, predictions, model_name, class_names):
     total_false = sum(false_counts)
 
     print(f"Total Correct Identifications: {total_true}, Total Misidentifications: {total_false}")
-    print_evaluation_metrics(ground_truth, predictions, model_name, class_names)
-    plot_confusion_matrix(ground_truth, predictions, model_name, class_names)
+
+    plot_confusion_matrix(ground_truth, predictions, model_name)
 
 
-def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_fil, cnn_txt_fil, ocr_txt_fil,class_names):
+def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_fil, cnn_txt_fil, ocr_txt_fil):
     ground_truth = load_ground_truth_from_filenames(image_dir)
     svm_predictions = load_predictions_from_txt(svm_txt)
     cnn_predictions = load_predictions_from_txt(cnn_txt)
@@ -106,12 +117,12 @@ def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_
     svm_predictions_fil = load_predictions_from_txt(svm_txt_fil)
     cnn_predictions_fil = load_predictions_from_txt(cnn_txt_fil)
     ocr_predictions_fil = load_predictions_from_txt(ocr_txt_fil)
-    evaluate_predictions(ground_truth, svm_predictions, "SVM", class_names)
-    evaluate_predictions(ground_truth, cnn_predictions, "CNN", class_names)
-    evaluate_predictions(ground_truth, ocr_predictions, "OCR", class_names)
-    evaluate_predictions(ground_truth, svm_predictions_fil, "SVM_F", class_names)
-    evaluate_predictions(ground_truth, cnn_predictions_fil, "CNN_F", class_names)
-    evaluate_predictions(ground_truth, ocr_predictions_fil, "OCR_f", class_names)
+    evaluate_predictions(ground_truth, svm_predictions, "SVM")
+    evaluate_predictions(ground_truth, cnn_predictions, "CNN")
+    evaluate_predictions(ground_truth, ocr_predictions, "OCR")
+    evaluate_predictions(ground_truth, svm_predictions_fil, "SVM_F")
+    evaluate_predictions(ground_truth, cnn_predictions_fil, "CNN_F")
+    evaluate_predictions(ground_truth, ocr_predictions_fil, "OCR_f")
 
     svm_accuracy = np.mean([gt == pred for gt, pred in zip(ground_truth, svm_predictions)])
     cnn_accuracy = np.mean([gt == pred for gt, pred in zip(ground_truth, cnn_predictions)])
