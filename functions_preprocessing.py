@@ -31,7 +31,6 @@ def combine_image_folders(source_folders, destination_folder):
                     source_path = os.path.join(folder, filename)
                     destination_path = os.path.join(destination_folder, f"{os.path.splitext(filename)[0]}{os.path.splitext(filename)[1]}")
                     shutil.copy2(source_path, destination_path)
-                    print(f"Image copied: {destination_path}")
 
         else:
             print(f"The folder {folder} does not exist.")
@@ -65,7 +64,6 @@ def train_test(source_folder, train_folder, test_folder, val_folder, random_stat
             source_path = os.path.join(source_folder, file_name)
             dest_path = os.path.join(destination_folder, file_name)
             shutil.copy2(source_path, dest_path)  # Use shutil.copy2 to preserve file metadata
-            print(f'Copied {file_name} to {destination_folder}')
 
     # Move the files to their respective folders
     move_files(train_indices, train_folder)
