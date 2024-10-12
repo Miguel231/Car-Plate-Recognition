@@ -257,3 +257,15 @@ car = image.copy()
 characters = OCR_image(license_plate = image, t = 200 ,min_h = 80, min_w = 15, min_ar = 0.2, max_ar = 1)
 
 """
+
+"""
+
+VISUALIZATION CHARACTERS
+
+"""
+def visualize_char(m1_chars):
+    for idx, char in enumerate(m1_chars):
+        plt.subplot(1, len(m1_chars), idx + 1)
+        plt.imshow(char, cmap='gray')
+        plt.axis('off')
+    plt.show()
