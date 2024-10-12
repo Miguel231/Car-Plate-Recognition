@@ -42,6 +42,7 @@ def plot_metrics_comparison(cnn_metrics, svm_metrics, ocr_metrics,cnn_metrics_fi
 def load_ground_truth_from_filenames(image_dir):
     ground_truth = []
     for image_file in os.listdir(image_dir):
+        print("IMAGE_FILE", image_file)
         if image_file.endswith('.jpg'):
             label = os.path.splitext(image_file)[0]  
             print("GROUNDTRUTH:",label)
