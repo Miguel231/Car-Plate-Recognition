@@ -44,6 +44,7 @@ def load_ground_truth_from_filenames(image_dir):
     for image_file in os.listdir(image_dir):
         if image_file.endswith('.jpg'):
             label = os.path.splitext(image_file)[0]  
+            print("GROUNDTRUTH:",label)
             ground_truth.append(label)
     return ground_truth
 
