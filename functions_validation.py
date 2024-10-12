@@ -67,27 +67,36 @@ def load_predictions_from_txt(txt_file):
     return predictions
 
 def evaluate_predictions(ground_truth, predictions, model_name, class_names):
-    if len(ground_truth) != len(predictions):
+    # Check lengths
+    gt_length = len(ground_truth)
+    pred_length = len(predictions)
+    if gt_length != pred_length:
         print(f"Length mismatch for {model_name}:")
-        print(f"Ground Truth length: {len(ground_truth)}")
-        print(f"Predictions length: {len(predictions)}")
-        return
-    print_evaluation_metrics(ground_truth, predictions, model_name, class_names)
-    match_count = 0
-    total_count = 0
+        print(f"Ground Truth length: {gt_length}")
+        print(f"Predictions length: {pred_length}")
+
+        min_length = min(gt_length, pred_length)
+        ground_truth = ground_truth[:min_length]
+        predictions = predictions[:min_length]
+
+        print(f"Adjusted Ground Truth length: {len(ground_truth)}")
+        print(f"Adjusted Predictions length: {len(predictions)}")
+
+    true_counts = []
+    false_counts = []
 
     for gt, pred in zip(ground_truth, predictions):
-        if len(pred) > len(gt):
-            pred = pred[:len(gt)]  
-        for g_char, p_char in zip(gt, pred):
-            if g_char == p_char:
-                match_count += 1
-        
-        total_count += len(gt)  
+        match_length = sum(1 for a, b in zip(gt, pred) if a == b)
+        true_counts.append(match_length)
+        false_counts.append(len(gt) - match_length)
 
-    print(f"{model_name} - Correctly identified characters: {match_count} out of {total_count}")
+    total_true = sum(true_counts)
+    total_false = sum(false_counts)
 
+    print(f"Total Correct Identifications: {total_true}, Total Misidentifications: {total_false}")
+    print_evaluation_metrics(ground_truth, predictions, model_name, class_names)
     plot_confusion_matrix(ground_truth, predictions, model_name, class_names)
+
 
 def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_fil, cnn_txt_fil, ocr_txt_fil,class_names):
     ground_truth = load_ground_truth_from_filenames(image_dir)
