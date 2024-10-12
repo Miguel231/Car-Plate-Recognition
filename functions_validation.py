@@ -62,7 +62,6 @@ def load_predictions_from_txt(txt_file):
 
             if len(prediction) > 7:
                 prediction = prediction[:7].upper()  
-                print(prediction) 
                 predictions.append(prediction)
             elif len(prediction) == 7:
                 predictions.append(prediction.upper()) 
@@ -70,23 +69,6 @@ def load_predictions_from_txt(txt_file):
     return predictions 
 
 def evaluate_predictions(ground_truth, predictions, model_name):
-    gt_length = len(ground_truth)
-    pred_length = len(predictions)
-
-    # Manejo de longitudes desiguales
-    if gt_length != pred_length:
-        print(f"Length mismatch for {model_name}:")
-        print(f"Ground Truth length: {gt_length}")
-        print(f"Predictions length: {pred_length}")
-
-        # Ajustar a la longitud más corta
-        min_length = min(gt_length, pred_length)
-        ground_truth = ground_truth[:min_length]
-        predictions = predictions[:min_length]
-
-        print(f"Adjusted Ground Truth length: {len(ground_truth)}")
-        print(f"Adjusted Predictions length: {len(predictions)}")
-
     # Clases únicas en las predicciones y ground truth
     unique_gt_classes = set(ground_truth)
     unique_pred_classes = set(predictions)
