@@ -182,12 +182,6 @@ def display_and_save_cropped_plates(cropped_plates_dict, save_folder):
     for image_file, cropped_plates in cropped_plates_dict.items():
         for i, cropped_plate in enumerate(cropped_plates):
             if i == 0:  # avoid getting other plates from the image, just the one we are interested in
-                plt.figure(figsize=(5, 3))
-                plt.imshow(cv2.cvtColor(cropped_plate, cv2.COLOR_BGR2RGB))  
-                plt.title(f'Cropped Plate from {image_file}')
-                plt.axis('off')  # Hide axis for better visualization
-                plt.show()
-
                 # Save the cropped image to the specified folder
                 save_path = os.path.join(save_folder, f"{image_file}")
                 cv2.imwrite(save_path, cropped_plate)
