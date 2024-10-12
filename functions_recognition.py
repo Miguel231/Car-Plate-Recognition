@@ -216,39 +216,38 @@ def filter_spain_plates(spain):
     letter_to_number = {'G': '6', 'B': '8', 
                         'I': '1', 'Z': '2', 'O': '0'}
     
-    if "AEIOU" in spain[-3:]:
+    #separate the string
+    if len(spain) == 8:
+        numbers = spain[1:4]
+        letters = spain[4:]
+
+        correct = "E - "
+    elif len(spain) == 7:
+        #separate the string
+        numbers = spain[:4]
+        letters = spain[4:]
+
+        correct = "E - "
+    else:
+        numbers = spain[-7:-3]
+        letters = spain[-3:]
+
+        correct = "E - "
+
+    #filter
+    correct_letters = ''.join([number_to_letter.get(char, char) for char in letters])
+    correct_numbers = ''.join([letter_to_number.get(char, char) for char in numbers])
+    
+    #combine
+    correct = correct + correct_numbers + correct_letters
+
+    if "AEIOU" in correct[-3:]:
         correct = "False Spanish License Plate, don't use API"
         print(correct)
-        return correct
-    
-    else:
-        #separate the string
-        if len(spain) == 8:
-            numbers = spain[1:4]
-            letters = spain[4:]
-
-            correct = "E - "
-        elif len(spain) == 7:
-            #separate the string
-            numbers = spain[:4]
-            letters = spain[4:]
-
-            correct = "E - "
-        else:
-            numbers = spain[-7:-3]
-            letters = spain[-3:]
-
-            correct = "E - "
-
-        #filter
-        correct_letters = ''.join([number_to_letter.get(char, char) for char in letters])
-        correct_numbers = ''.join([letter_to_number.get(char, char) for char in numbers])
         
-        #combine
-        correct = correct + correct_numbers + correct_letters
-
         return correct
-
+    else:
+        return correct
 
 
 """
