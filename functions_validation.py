@@ -34,9 +34,7 @@ def load_predictions_from_txt(txt_file):
     return predictions 
 
 
-"""def evaluate_predictions(ground_truth, predictions, f, num):
-    #total_characters_matched = 0
-    #total_unmatched_characters = 0  # New counter for unmatched characters
+def evaluate_predictions(ground_truth, predictions, f, num):
     c = 0
     fo = 0
     for gt, pred in zip(ground_truth, predictions):
@@ -56,30 +54,32 @@ def load_predictions_from_txt(txt_file):
 
     print("TRUE:",fo)
     print("TOTAL:",c)
-    #print(f"Total Characters Matched: {total_characters_matched}")
-    #print(f"Total Unmatched Characters: {total_unmatched_characters}")
     num = 1
     return fo,num
 
 def evaluate_predictions(ground_truth, predictions, f, num):
     c = 0
     fo = 0
+    n=0
     for gt, pred in zip(ground_truth, predictions):
         if num == 0:
             if gt == pred:
                 f.append(1)
                 fo+=1
+                n+=1
             else:
                 f.append(0)   
         else:
             if gt == pred:
+                n+=1
                 if f[c] == 0:
                     f[c] = 1
                     fo+=1
         c+=1
 
 
-    print("TRUE:",fo)
+    print("DETECTED:", n)
+    print("NOT DETECTED PREVIOUSLY::",fo)
     print("TOTAL:",c)
     num = 1
     return fo,num
@@ -88,7 +88,7 @@ def evaluate_predictions(ground_truth, predictions, f, num):
 def evaluate_predictions_characters(ground_truth, predictions, f, num):
     c = 0
     fo = 0
-    s = 0
+    n = 0
     for gt, pred in zip(ground_truth, predictions):
         if num == 0:
             if len(pred) < 7:
@@ -96,6 +96,7 @@ def evaluate_predictions_characters(ground_truth, predictions, f, num):
                     if char_pred in gt:
                         f.append(1)
                         fo += 1
+                        n+=1
                     else:
                         f.append(0)
                     c += 1
@@ -109,12 +110,14 @@ def evaluate_predictions_characters(ground_truth, predictions, f, num):
                     if char_pred in gt:
                         f.append(1)
                         fo+=1
+                        n+=1
                     else:
                         f.append(0)
                     c+=1   
         else:
             for char_pred in pred:
                 if char_pred in gt:
+                    n+=1
                     if f[c] == 0:
                         f[c] = 1
                         fo+=1
@@ -122,8 +125,9 @@ def evaluate_predictions_characters(ground_truth, predictions, f, num):
 
 
 
-    print("TRUE CHARACTERS:",fo)
-    print("TOTAL CHARACTERS:",c)
+    print("DETECTED:", n)
+    print("NOT DETECTED PREVIOUSLY::",fo)
+    print("TOTAL:",c)
     num = 1
     return fo,num
 
@@ -194,198 +198,5 @@ def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_
     print("OCR_FILTER:")    
     fo, num = evaluate_predictions_characters(ground_truth, ocr_predictions_fil, f, num)
     suma+=fo
-    print("TOTAL CHARACTERS DETECTED CORRECTLY: ", suma)    """
+    print("TOTAL CHARACTERS DETECTED CORRECTLY: ", suma)   
 
-def calculate_metrics(true_positive, total_elements):
-    accuracy = true_positive / total_elements if total_elements > 0 else 0
-    precision = true_positive / total_elements if total_elements > 0 else 0
-    recall = true_positive / total_elements if total_elements > 0 else 0
-    f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
-    return accuracy, precision, recall, f1_score
-
-def evaluate_predictions(ground_truth, predictions, f, num):
-    c = 0
-    fo = 0  # Tracks the number of first-time matches
-    total_matches = 0  # Tracks the total number of matches, even if seen before
-    
-    for gt, pred in zip(ground_truth, predictions):
-        if num == 0:  # First pass
-            if gt == pred:
-                f.append(1)
-                fo += 1
-                total_matches += 1
-            else:
-                f.append(0)
-        else:  # Subsequent passes
-            if gt == pred:
-                total_matches += 1  # Increment for every match, even if seen before
-                if f[c] == 0:  # Only update `fo` for first-time matches
-                    f[c] = 1
-                    fo += 1
-        c += 1
-
-    accuracy, precision, recall, f1_score = calculate_metrics(fo, len(ground_truth))
-    
-    print("TRUE LICENSE PLATES (FIRST-TIME MATCHES):", fo)
-    print("TOTAL LICENSE PLATES (ALL MATCHES):", total_matches)
-    print(f"Accuracy: {accuracy:.2f}")
-    print(f"Precision: {precision:.2f}")
-    print(f"Recall: {recall:.2f}")
-    print(f"F1-Score: {f1_score:.2f}")
-    
-    num = 1
-    return fo, num, total_matches
-
-
-def evaluate_predictions_characters(ground_truth, predictions, f, num):
-    c = 0
-    fo = 0  # Tracks the number of first-time matches
-    total_matches = 0  # Tracks the total number of matches, even if seen before
-    total_characters = 0  # Total characters in all ground truth labels
-    
-    for gt, pred in zip(ground_truth, predictions):
-        if num == 0:
-            if len(pred) < 7:
-                for char_pred in pred:
-                    if char_pred in gt:
-                        f.append(1)
-                        fo += 1
-                        total_matches += 1
-                    else:
-                        f.append(0)
-                    c += 1
-                
-                # Calculate how many zeros are needed to pad the list `f` to length 7
-                zeros_to_add = 7 - len(pred)
-                f.extend([0] * zeros_to_add)
-                c += zeros_to_add  
-            else:
-                for char_pred in pred:
-                    if char_pred in gt:
-                        f.append(1)
-                        fo += 1
-                        total_matches += 1
-                    else:
-                        f.append(0)
-                    c += 1
-        else:
-            for char_pred in pred:
-                if char_pred in gt:
-                    total_matches += 1  # Increment for every match
-                    if f[c] == 0:
-                        f[c] = 1
-                        fo += 1
-                c += 1
-        total_characters += len(gt)  # Total actual characters to match
-    
-    accuracy, precision, recall, f1_score = calculate_metrics(fo, total_characters)
-    
-    print("TRUE CHARACTERS (FIRST-TIME MATCHES):", fo)
-    print("TOTAL CHARACTERS (ALL MATCHES):", total_matches)
-    print(f"Accuracy: {accuracy:.2f}")
-    print(f"Precision: {precision:.2f}")
-    print(f"Recall: {recall:.2f}")
-    print(f"F1-Score: {f1_score:.2f}")
-    
-    num = 1
-    return fo, num, total_matches
-
-
-def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_fil, cnn_txt_fil, ocr_txt_fil, f):
-    ground_truth = load_ground_truth_from_filenames(image_dir)
-    svm_predictions = load_predictions_from_txt(svm_txt)
-    cnn_predictions = load_predictions_from_txt(cnn_txt)
-    ocr_predictions = load_predictions_from_txt(ocr_txt)
-    svm_predictions_fil = load_predictions_from_txt(svm_txt_fil)
-    cnn_predictions_fil = load_predictions_from_txt(cnn_txt_fil)
-    ocr_predictions_fil = load_predictions_from_txt(ocr_txt_fil)
-    
-    suma = 0
-    total_matches = 0
-    num = 0
-    
-    # License Plates Evaluation
-    print("LICENSE PLATES DETECTED: ")
-    print("SVM:")
-    fo, num, matches = evaluate_predictions(ground_truth, svm_predictions, f, num)
-    suma += fo
-    total_matches += matches
-    print("\n")
-    
-    print("CNN:")
-    fo, num, matches = evaluate_predictions(ground_truth, cnn_predictions, f, num)
-    suma += fo
-    total_matches += matches
-    print("\n")
-    
-    print("OCR:")    
-    fo, num, matches = evaluate_predictions(ground_truth, ocr_predictions, f, num)
-    suma += fo
-    total_matches += matches
-    print("\n")
-    
-    print("SVM_FILTER:")    
-    fo, num, matches = evaluate_predictions(ground_truth, svm_predictions_fil, f, num)
-    suma += fo
-    total_matches += matches
-    print("\n")
-    
-    print("CNN_FILTER:")
-    fo, num, matches = evaluate_predictions(ground_truth, cnn_predictions_fil, f, num)
-    suma += fo
-    total_matches += matches
-    print("\n")
-    
-    print("OCR_FILTER:")    
-    fo, num, matches = evaluate_predictions(ground_truth, ocr_predictions_fil, f, num)
-    suma += fo
-    total_matches += matches
-    
-    print("TOTAL LICENSE PLATES DETECTED CORRECTLY (FIRST-TIME MATCHES):", suma)   
-    print("TOTAL LICENSE PLATES MATCHED (ALL MATCHES):", total_matches)
-    print("\n")
-    print("\n") 
-
-    # Character Evaluation
-    suma = 0
-    total_matches = 0
-    num = 0
-    
-    print("CHARACTERS DETECTED: ")
-    print("SVM:")
-    fo, num, matches = evaluate_predictions_characters(ground_truth, svm_predictions, f, num)
-    suma += fo
-    total_matches += matches
-    print("\n")
-    
-    print("CNN:")
-    fo, num, matches = evaluate_predictions_characters(ground_truth, cnn_predictions, f, num)
-    suma += fo
-    total_matches += matches
-    print("\n")
-    
-    print("OCR:")    
-    fo, num, matches = evaluate_predictions_characters(ground_truth, ocr_predictions, f, num)
-    suma += fo
-    total_matches += matches
-    print("\n")
-    
-    print("SVM_FILTER:")    
-    fo, num, matches = evaluate_predictions_characters(ground_truth, svm_predictions_fil, f, num)
-    suma += fo
-    total_matches += matches
-    print("\n")
-    
-    print("CNN_FILTER:")
-    fo, num, matches = evaluate_predictions_characters(ground_truth, cnn_predictions_fil, f, num)
-    suma += fo
-    total_matches += matches
-    print("\n")
-    
-    print("OCR_FILTER:")    
-    fo, num, matches = evaluate_predictions_characters(ground_truth, ocr_predictions_fil, f, num)
-    suma += fo
-    total_matches += matches
-    
-    print("TOTAL CHARACTERS DETECTED CORRECTLY (FIRST-TIME MATCHES):", suma)
-    print("TOTAL CHARACTERS MATCHED (ALL MATCHES):", total_matches)
