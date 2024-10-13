@@ -42,11 +42,28 @@ def evaluate_predictions(ground_truth, predictions):
         if len(pred)>8:
                 total_unmatched_characters += len(gt)
         else:
-            for chr_gt,pred_gt in zip(gt,pred):
-                if chr_gt == pred_gt:
-                    total_characters_matched += 1  # Count matched characters
-                else:
-                    total_unmatched_characters+=1
+            if len(pred) == 8:
+                pred = pred[1:]
+                for chr_gt,pred_gt in zip(gt,pred):
+                    if chr_gt == pred_gt:
+                        total_characters_matched += 1  
+                    else:
+                        total_unmatched_characters+=1
+            elif len(pred) == 7:
+                for chr_gt,pred_gt in zip(gt,pred):
+                    if chr_gt == pred_gt:
+                        total_characters_matched += 1  
+                    else:
+                        total_unmatched_characters+=1
+            else:
+                if len(pred) < 7:
+                    for length in range(5, 2, -1):  
+                        if chr_gt[:length] == pred:
+                            total_characters_matched += len(pred)
+                            break 
+                    else:
+                        total_unmatched_characters += len(gt) 
+
 
     print(f"Total Characters Matched: {total_characters_matched}")
     print(f"Total Unmatched Characters: {total_unmatched_characters}")
