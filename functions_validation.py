@@ -81,7 +81,6 @@ def evaluate_predictions(ground_truth, predictions, f, num):
 
     print("DETECTED:", n)
     print("NOT DETECTED PREVIOUSLY::",fo)
-    print("TOTAL:",c)
     num = 1
     return fo,num
 
@@ -128,7 +127,6 @@ def evaluate_predictions_characters(ground_truth, predictions, f, num):
 
     print("DETECTED:", n)
     print("NOT DETECTED PREVIOUSLY::",fo)
-    print("TOTAL:",c)
     num = 1
     return fo,num
 
@@ -144,6 +142,7 @@ def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_
     suma = 0
     num = 0
     print("LICENSE PLATES DETECTED: ")
+    print("\n")
     print("SVM:")
     fo,num = evaluate_predictions(ground_truth, svm_predictions, f, num)
     suma+=fo
@@ -167,6 +166,7 @@ def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_
     print("OCR_FILTER:")    
     fo, num = evaluate_predictions(ground_truth, ocr_predictions_fil, f, num)
     suma+=fo
+    print("\n")
     print("TOTAL LICENSE PLATES DETECTED CORRECTLY: ", suma)   
     print("\n")
     print("\n") 
@@ -176,6 +176,7 @@ def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_
     suma = 0
     num = 0
     print("CHARACTERS DETECTED: ")
+    print("\n")
     print("SVM:")
     fo,num = evaluate_predictions_characters(ground_truth, svm_predictions, f, num)
     suma+=fo
@@ -199,6 +200,7 @@ def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_
     print("OCR_FILTER:")    
     fo, num = evaluate_predictions_characters(ground_truth, ocr_predictions_fil, f, num)
     suma+=fo
+    print("\n")
     print("TOTAL CHARACTERS DETECTED CORRECTLY: ", suma)   
 
 
