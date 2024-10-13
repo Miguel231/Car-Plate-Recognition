@@ -99,9 +99,10 @@ def evaluate_predictions_characters(ground_truth, predictions, f, num):
                     else:
                         f.append(0)
                     c+=1
-                while s != 7:
+                while (len(pred)+s) != 7:
                     f.append(0)
                     c+=1
+                    s+=1
             else:
                 for char_pred in pred:
                     if char_pred in gt:
@@ -135,6 +136,7 @@ def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_
     ocr_predictions_fil = load_predictions_from_txt(ocr_txt_fil)
     suma = 0
     num = 0
+    print("LICENSE PLATES DETECTED: ")
     print("SVM:")
     fo,num = evaluate_predictions(ground_truth, svm_predictions, f, num)
     suma+=fo
@@ -158,12 +160,15 @@ def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_
     print("OCR_FILTER:")    
     fo, num = evaluate_predictions(ground_truth, ocr_predictions_fil, f, num)
     suma+=fo
-    print("TOTAL LICENSE PLATES DETECTED CORRECTLY: ", suma)    
+    print("TOTAL LICENSE PLATES DETECTED CORRECTLY: ", suma)   
+    print("\n")
+    print("\n") 
 
 
     ### BY CHARACTERS ##################################
     suma = 0
     num = 0
+    print("CHARACTERS DETECTED: ")
     print("SVM:")
     fo,num = evaluate_predictions_characters(ground_truth, svm_predictions, f, num)
     suma+=fo
