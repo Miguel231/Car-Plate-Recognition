@@ -39,21 +39,31 @@ def plot_metrics_comparison(cnn_metrics, svm_metrics, ocr_metrics,cnn_metrics_fi
 
     plt.show()
 
+import os
+
 def load_ground_truth_from_filenames(image_dir):
     ground_truth = []
     for image_file in os.listdir(image_dir):
         if image_file.endswith('.jpg'):
             label = os.path.splitext(image_file)[0]  
             ground_truth.append(label)
+    
+    # Sort the list using a custom key
+    ground_truth.sort(key=lambda x: (float('inf') if not x.replace('-', '').replace('.', '').isdigit() else float(x), x))
+    
     return ground_truth
+
 
 # Function to load predictions from a .txt file
 def load_predictions_from_txt(txt_file):
     predictions = []
     with open(txt_file, 'r') as file:
         for line in file:
-            if len(line) == 0:
+            prediction = line.strip()  # Eliminar espacios en blanco alrededor
+            # Si la línea está vacía, agregar "U" a las predicciones
+            if not prediction:
                 predictions.append("U")
+                continue
             prediction = line.strip()  
             if prediction.startswith("E -") or prediction.startswith("E-"):
                 prediction = prediction.replace("E -", "").replace("E-", "").strip()
@@ -66,28 +76,46 @@ def load_predictions_from_txt(txt_file):
 
     return predictions 
 
-def evaluate_predictions(ground_truth, predictions, model_name):
-    # Clases únicas en las predicciones y ground truth
-    unique_gt_classes = set(ground_truth)
-    unique_pred_classes = set(predictions)
+def evaluate_predictions_with_character_count(ground_truth, predictions, model_name):
+    matched_ground_truth = set()  # To keep track of matched ground truth labels
+    total_correct = 0
+    total_characters_matched = 0
+    total_mismatched = 0
+    total_unmatched_characters = 0  # New counter for unmatched characters
 
-    print(f"Unique classes in Ground Truth: {unique_gt_classes}")
-    print(f"Unique classes in Predictions: {unique_pred_classes}")
+    # Define lengths to check in descending order
+    lengths_to_check = list(range(7, 2, -1))  # From 7 to 3
 
-    # Contadores para evaluaciones
-    true_counts = []
-    false_counts = []
+    for predicted in predictions:
+        matched = False
+        # Check for sequences of various lengths
+        for length in lengths_to_check:
+            # Check if the predicted sequence is long enough
+            if len(predicted) >= length:
+                # Extract the substring to check
+                predicted_sequence = predicted[:length]  # Take the first 'length' characters
+                
+                # Look for a match in ground truth
+                for gt in ground_truth:
+                    if gt not in matched_ground_truth and predicted_sequence in gt:
+                        # If a match is found, mark it
+                        matched_ground_truth.add(gt)
+                        total_correct += 1
+                        total_characters_matched += len(predicted_sequence)  # Add length of matched sequence
+                        matched = True
+                        break  # Exit the ground truth loop once matched
 
-    for gt, pred in zip(ground_truth, predictions):
-        # Identificación de coincidencias
-        match_length = sum(1 for a, b in zip(gt, pred) if a == b)
-        true_counts.append(match_length)
-        false_counts.append(len(gt) - match_length)
+            if matched:  # If a match was found, break out of the length loop
+                break
 
-    total_true = sum(true_counts)
-    total_false = sum(false_counts)
+        if not matched:  # If no match was found
+            total_mismatched += 1
+            total_unmatched_characters += len(predicted)  # Add length of unmatched predicted sequence
 
-    print(f"Total Correct Identifications: {total_true}, Total Misidentifications: {total_false}")
+    print(f"Total Correct Matches: {total_correct}")
+    print(f"Total Characters Matched: {total_characters_matched}")
+    print(f"Total Mismatched Predictions: {total_mismatched}")
+    print(f"Total Unmatched Characters: {total_unmatched_characters}")
 
     plot_confusion_matrix(ground_truth, predictions, model_name)
 
