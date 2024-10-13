@@ -61,6 +61,55 @@ def evaluate_predictions(ground_truth, predictions, f, num):
     num = 1
     return fo,num
 
+def evaluate_predictions(ground_truth, predictions, f, num):
+    c = 0
+    fo = 0
+    for gt, pred in zip(ground_truth, predictions):
+        if num == 0:
+            if gt == pred:
+                f.append(1)
+                fo+=1
+            else:
+                f.append(0)   
+        else:
+            if gt == pred:
+                if f[c] == 0:
+                    f[c] == 1
+                    fo+=1
+        c+=1
+
+
+    print("TRUE:",fo)
+    print("TOTAL:",c)
+    num = 1
+    return fo,num
+
+
+def evaluate_predictions_characters(ground_truth, predictions, f, num):
+    c = 0
+    fo = 0
+    for gt, pred in zip(ground_truth, predictions):
+        if num == 0:
+            for char_pred in pred:
+                if char_pred in gt:
+                    f.append(1)
+                    fo+=1
+                else:
+                    f.append(0)   
+        else:
+            for char_pred in pred:
+                if char_pred in gt:
+                    if f[c] == 0:
+                        f[c] == 1
+                        fo+=1
+        c+=1
+
+
+    print("TRUE CHARACTERS:",fo)
+    print("TOTAL CHARACTERS:",c)
+    num = 1
+    return fo,num
+
 
 def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_fil, cnn_txt_fil, ocr_txt_fil,f):
     ground_truth = load_ground_truth_from_filenames(image_dir)
@@ -96,3 +145,32 @@ def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_
     fo, num = evaluate_predictions(ground_truth, ocr_predictions_fil, f, num)
     suma+=fo
     print("TOTAL LICENSE PLATES DETECTED CORRECTLY: ", suma)    
+
+
+    ### BY CHARACTERS ##################################
+    suma = 0
+    num = 0
+    print("SVM:")
+    fo,num = evaluate_predictions_characters(ground_truth, svm_predictions, f, num)
+    suma+=fo
+    print("\n")
+    print("CNN:")
+    fo,num=evaluate_predictions_characters(ground_truth, cnn_predictions, f, num)
+    suma+=fo
+    print("\n")
+    print("OCR:")    
+    fo,num=evaluate_predictions_characters(ground_truth, ocr_predictions, f, num)
+    suma+=fo
+    print("\n")
+    print("SVM_FILTER:")    
+    fo,num=evaluate_predictions_characters(ground_truth, svm_predictions_fil, f, num)
+    suma+=fo
+    print("\n")
+    print("CNN_FILTER:")
+    fo,num=evaluate_predictions_characters(ground_truth, cnn_predictions_fil, f, num)
+    suma+=fo
+    print("\n")
+    print("OCR_FILTER:")    
+    fo, num = evaluate_predictions_characters(ground_truth, ocr_predictions_fil, f, num)
+    suma+=fo
+    print("TOTAL CHARACTERS DETECTED CORRECTLY: ", suma)    
