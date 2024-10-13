@@ -70,29 +70,32 @@ def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_
     svm_predictions_fil = load_predictions_from_txt(svm_txt_fil)
     cnn_predictions_fil = load_predictions_from_txt(cnn_txt_fil)
     ocr_predictions_fil = load_predictions_from_txt(ocr_txt_fil)
+    suma = 0
     num = 0
     print("SVM:")
-    num = evaluate_predictions(ground_truth, svm_predictions, f, num)
+    fo,num = evaluate_predictions(ground_truth, svm_predictions, f, num)
+    suma+=fo
     print("\n")
     print("CNN:")
-    evaluate_predictions(ground_truth, cnn_predictions, f, num)
+    fo,num=evaluate_predictions(ground_truth, cnn_predictions, f, num)
+    suma+=fo
     print("\n")
     print("OCR:")    
-    evaluate_predictions(ground_truth, ocr_predictions, f, num)
+    fo,num=evaluate_predictions(ground_truth, ocr_predictions, f, num)
+    suma+=fo
     print("\n")
     print("SVM_FILTER:")    
-    evaluate_predictions(ground_truth, svm_predictions_fil, f, num)
+    fo,num=evaluate_predictions(ground_truth, svm_predictions_fil, f, num)
+    suma+=fo
     print("\n")
     print("CNN_FILTER:")
-    evaluate_predictions(ground_truth, cnn_predictions_fil, f, num)
+    fo,num=evaluate_predictions(ground_truth, cnn_predictions_fil, f, num)
+    suma+=fo
     print("\n")
     print("OCR_FILTER:")    
-    f, num = evaluate_predictions(ground_truth, ocr_predictions_fil, f, num)
-    s = 0
-    for values in f:
-        if values == 1:
-            s+=1
-    print("TOTAL DETECTED CORRECTLY: ", s)
+    fo, num = evaluate_predictions(ground_truth, ocr_predictions_fil, f, num)
+    suma+=fo
+    print("TOTAL DETECTED CORRECTLY: ", suma)
 
 
 
