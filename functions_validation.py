@@ -59,7 +59,7 @@ def evaluate_predictions(ground_truth, predictions, f, num):
     #print(f"Total Characters Matched: {total_characters_matched}")
     #print(f"Total Unmatched Characters: {total_unmatched_characters}")
     num = 1
-    return f,num
+    return fo,num
 
 
 def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_fil, cnn_txt_fil, ocr_txt_fil,f):
