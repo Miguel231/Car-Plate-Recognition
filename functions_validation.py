@@ -35,7 +35,6 @@ def load_predictions_from_txt(txt_file):
 
 
 def evaluate_predictions(ground_truth, predictions):
-    total_correct = 0
     total_characters_matched = 0
     total_unmatched_characters = 0  # New counter for unmatched characters
 
@@ -44,8 +43,6 @@ def evaluate_predictions(ground_truth, predictions):
                 total_unmatched_characters += 8
         else:
             for chr_gt,pred_gt in zip(gt,pred):
-                print(chr_gt)
-                print(pred_gt)
                 if chr_gt == pred_gt:
                     total_characters_matched += 1  # Count matched characters
                 else:
