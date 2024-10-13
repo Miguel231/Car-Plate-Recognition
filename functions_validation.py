@@ -91,18 +91,19 @@ def evaluate_predictions_characters(ground_truth, predictions, f, num):
     s = 0
     for gt, pred in zip(ground_truth, predictions):
         if num == 0:
-            if len(pred)<7:
+            if len(pred) < 7:
                 for char_pred in pred:
                     if char_pred in gt:
                         f.append(1)
-                        fo+=1
+                        fo += 1
                     else:
                         f.append(0)
-                    c+=1
-                while (len(pred)+s) != 7:
-                    f.append(0)
-                    c+=1
-                    s+=1
+                    c += 1
+                
+                # Calculate how many zeros are needed to pad the list f to length 7
+                zeros_to_add = 7 - len(pred)
+                f.extend([0] * zeros_to_add)
+                c += zeros_to_add  
             else:
                 for char_pred in pred:
                     if char_pred in gt:
@@ -118,6 +119,7 @@ def evaluate_predictions_characters(ground_truth, predictions, f, num):
                         f[c] == 1
                         fo+=1
                 c+=1
+
 
 
     print("TRUE CHARACTERS:",fo)
