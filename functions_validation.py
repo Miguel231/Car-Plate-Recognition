@@ -117,7 +117,7 @@ def evaluate_predictions(ground_truth, predictions, model_name):
     print(f"Total Mismatched Predictions: {total_mismatched}")
     print(f"Total Unmatched Characters: {total_unmatched_characters}")
 
-    plot_confusion_matrix(ground_truth, predictions, model_name)
+    #plot_confusion_matrix(ground_truth, predictions, model_name)
 
 
 def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_fil, cnn_txt_fil, ocr_txt_fil):
