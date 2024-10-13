@@ -40,8 +40,6 @@ def evaluate_predictions(ground_truth, predictions):
     total_unmatched_characters = 0  # New counter for unmatched characters
 
     for gt, pred in zip(ground_truth, predictions):
-        print("GT:", gt)
-        print("PRED:", pred)
         if gt == pred:
             total_correct += 1  # Count total correct predictions
             total_characters_matched += len(gt)  # Count matched characters
