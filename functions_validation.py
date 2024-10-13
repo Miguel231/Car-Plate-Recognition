@@ -1,6 +1,8 @@
 import os
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+from scipy import stats
 
 
 def load_ground_truth_from_filenames(image_dir):
@@ -143,7 +145,7 @@ def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_
     num = 0
     print("LICENSE PLATES DETECTED: ")
     print("\n")
-    print("SVM:")
+    print("SVC:")
     fo,num = evaluate_predictions(ground_truth, svm_predictions, f, num)
     suma+=fo
     print("\n")
@@ -155,7 +157,7 @@ def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_
     fo,num=evaluate_predictions(ground_truth, ocr_predictions, f, num)
     suma+=fo
     print("\n")
-    print("SVM_FILTER:")    
+    print("SVC_FILTER:")    
     fo,num=evaluate_predictions(ground_truth, svm_predictions_fil, f, num)
     suma+=fo
     print("\n")
@@ -177,7 +179,7 @@ def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_
     num = 0
     print("CHARACTERS DETECTED: ")
     print("\n")
-    print("SVM:")
+    print("SVC:")
     fo,num = evaluate_predictions_characters(ground_truth, svm_predictions, f, num)
     suma+=fo
     print("\n")
@@ -189,7 +191,7 @@ def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_
     fo,num=evaluate_predictions_characters(ground_truth, ocr_predictions, f, num)
     suma+=fo
     print("\n")
-    print("SVM_FILTER:")    
+    print("SVC_FILTER:")    
     fo,num=evaluate_predictions_characters(ground_truth, svm_predictions_fil, f, num)
     suma+=fo
     print("\n")
@@ -206,7 +208,7 @@ def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_
 def plot_detection_accuracies(plates_detected, plates_not_detected_previously, total_license_plates,
                               characters_detected, characters_not_detected_previously, total_characters, 
                               total_license_plates_correct, total_characters_correct):
-    methods = ['SVM', 'CNN', 'OCR', 'SVM_FILTER', 'CNN_FILTER', 'OCR_FILTER']
+    methods = ['SVC', 'CNN', 'OCR', 'SVC_FILTER', 'CNN_FILTER', 'OCR_FILTER']
 
     # Calculate accuracies
     license_plate_accuracy = [(detected / total_license_plates) * 100 for detected in plates_detected]
@@ -266,83 +268,6 @@ def plot_detection_accuracies(plates_detected, plates_not_detected_previously, t
     plt.tight_layout()
     plt.show()
 
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-from scipy import stats
-
-# Function to calculate confidence interval
-def calculate_ci(p, n, confidence=0.95):
-    z = stats.norm.ppf(1 - (1 - confidence) / 2)  # Z-score
-    se = np.sqrt((p * (1 - p)) / n)  # Standard error
-    ci_lower = p - z * se  # Lower bound
-    ci_upper = p + z * se  # Upper bound
-    return ci_lower, ci_upper
-
-# Function to calculate confidence intervals and plot them
-def calculate_and_plot_confidence_intervals(methods, license_plate_accuracy, character_accuracy, n=100):
-    # Check the lengths
-    len_license = len(license_plate_accuracy)
-    len_character = len(character_accuracy)
-
-    # If lengths are not equal, pad the shorter one with NaNs
-    if len_license != len_character:
-        max_len = max(len_license, len_character)
-        if len_license < max_len:
-            license_plate_accuracy += [np.nan] * (max_len - len_license)
-        if len_character < max_len:
-            character_accuracy += [np.nan] * (max_len - len_character)
-
-    # Combine into a DataFrame for easier analysis
-    data = pd.DataFrame({
-        'Method': np.repeat(methods, 1),  # Repeat methods for each accuracy
-        'License Plate Accuracy': license_plate_accuracy,  # Already padded if necessary
-        'Character Accuracy': character_accuracy  # Already padded if necessary
-    })
-
-    print(data)
-
-    # Calculate CIs for License Plate Accuracy
-    ci_results = []
-    for method, accuracy in zip(methods, license_plate_accuracy):
-        ci = calculate_ci(accuracy / 100, n)  # Accuracy needs to be a proportion
-        ci_results.append((method, 'License Plate Accuracy', accuracy, ci))
-
-    # Calculate CIs for Character Accuracy
-    for method, accuracy in zip(methods, character_accuracy):
-        ci = calculate_ci(accuracy / 100, n)  # Accuracy needs to be a proportion
-        ci_results.append((method, 'Character Accuracy', accuracy, ci))
-
-    # Convert CI results to DataFrame
-    ci_df = pd.DataFrame(ci_results, columns=['Method', 'Metric', 'Accuracy', 'CI'])
-    ci_df['CI Lower'] = ci_df['CI'].apply(lambda x: x[0])
-    ci_df['CI Upper'] = ci_df['CI'].apply(lambda x: x[1])
-    ci_df = ci_df.drop(columns='CI')
-
-    # Print CI results
-    print("Confidence Intervals for Accuracy Metrics:")
-    print(ci_df)
-
-    # Plotting the Confidence Intervals
-    plt.figure(figsize=(12, 6))
-    for idx, row in ci_df.iterrows():
-        plt.errorbar(row['Method'], row['Accuracy'], 
-                     yerr=[[row['Accuracy'] - row['CI Lower']], [row['CI Upper'] - row['Accuracy']]], 
-                     fmt='o', label=row['Metric'] if idx % 6 == 0 else "", capsize=5)
-
-    plt.title('Confidence Intervals for License Plate and Character Accuracy')
-    plt.ylabel('Accuracy (%)')
-    plt.xticks(rotation=45)
-    plt.legend()
-    plt.grid()
-    plt.tight_layout()
-    plt.show()
-
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-from scipy import stats
-
 # Function to calculate confidence interval
 def calculate_ci(p, n, confidence=0.95):
     z = stats.norm.ppf(1 - (1 - confidence) / 2)  # Z-score
@@ -377,9 +302,6 @@ def calculate_and_plot_confidence_intervals(methods, license_plate_accuracy, cha
     ci_df['CI Upper'] = ci_df['CI'].apply(lambda x: x[1])
     ci_df = ci_df.drop(columns='CI')
 
-    # Display the CI results in a table format
-    print("Confidence Intervals for Accuracy Metrics:")
-    print(ci_df.to_string(index=False))
 
     # Plotting the Confidence Intervals
     plt.figure(figsize=(12, 6))
