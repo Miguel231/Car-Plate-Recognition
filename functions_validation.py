@@ -88,27 +88,24 @@ def evaluate_predictions(ground_truth, predictions, model_name):
 
     for predicted in predictions:
         matched = False
-        # Check for sequences of various lengths
+
         for length in lengths_to_check:
-            # Check if the predicted sequence is long enough
             if len(predicted) >= length:
-                # Extract the substring to check
-                predicted_sequence = predicted[:length]  # Take the first 'length' characters
-                
-                # Look for a match in ground truth
+                predicted_sequence = predicted[:length]  
+
                 for gt in ground_truth:
                     if gt not in matched_ground_truth and predicted_sequence in gt:
                         # If a match is found, mark it
                         matched_ground_truth.add(gt)
-                        total_characters_matched += len(predicted_sequence)  # Add length of matched sequence
+                        total_characters_matched += len(predicted_sequence)  
                         matched = True
-                        break  # Exit the ground truth loop once matched
+                        break  
 
-            if matched:  # If a match was found, break out of the length loop
+            if matched: 
                 break
 
-        if not matched:  # If no match was found
-            total_unmatched_characters += len(predicted)  # Add length of unmatched predicted sequence
+        if not matched:  
+            total_unmatched_characters += 7
 
 
     print(f"Total Characters Matched: {total_characters_matched}")
