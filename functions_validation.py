@@ -266,31 +266,144 @@ def plot_detection_accuracies(plates_detected, plates_not_detected_previously, t
     plt.tight_layout()
     plt.show()
 
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy import stats
 
-def plot_train_test_validation(train_accuracies, test_accuracies, val_accuracies, labels):
-    x = np.arange(len(labels))  # Label locations
-    width = 0.25  # Width of the bars
+# Function to calculate confidence interval
+def calculate_ci(p, n, confidence=0.95):
+    z = stats.norm.ppf(1 - (1 - confidence) / 2)  # Z-score
+    se = np.sqrt((p * (1 - p)) / n)  # Standard error
+    ci_lower = p - z * se  # Lower bound
+    ci_upper = p + z * se  # Upper bound
+    return ci_lower, ci_upper
 
-    fig, ax = plt.subplots(figsize=(12, 6))
+# Function to calculate confidence intervals and plot them
+def calculate_and_plot_confidence_intervals(methods, license_plate_accuracy, character_accuracy, n=100):
+    # Check the lengths
+    len_license = len(license_plate_accuracy)
+    len_character = len(character_accuracy)
 
-    # Plot bars for each accuracy
-    bars1 = ax.bar(x - width, train_accuracies, width, label='Training Accuracy')
-    bars2 = ax.bar(x, test_accuracies, width, label='Testing Accuracy')
-    bars3 = ax.bar(x + width, val_accuracies, width, label='Validation Accuracy')
+    # If lengths are not equal, pad the shorter one with NaNs
+    if len_license != len_character:
+        max_len = max(len_license, len_character)
+        if len_license < max_len:
+            license_plate_accuracy += [np.nan] * (max_len - len_license)
+        if len_character < max_len:
+            character_accuracy += [np.nan] * (max_len - len_character)
 
-    # Add labels and title
-    ax.set_ylabel('Accuracy (%)')
-    ax.set_title('Model Accuracy for License Plates and Characters')
-    ax.set_xticks(x)
-    ax.set_xticklabels(labels)
-    ax.legend()
+    # Combine into a DataFrame for easier analysis
+    data = pd.DataFrame({
+        'Method': np.repeat(methods, 1),  # Repeat methods for each accuracy
+        'License Plate Accuracy': license_plate_accuracy,  # Already padded if necessary
+        'Character Accuracy': character_accuracy  # Already padded if necessary
+    })
 
-    # Add accuracy labels on top of the bars
-    for bars in [bars1, bars2, bars3]:
-        for bar in bars:
-            height = bar.get_height()
-            ax.text(bar.get_x() + bar.get_width() / 2., height + 1, f'{height:.2f}%', 
-                    ha='center', va='bottom')
+    print(data)
 
+    # Calculate CIs for License Plate Accuracy
+    ci_results = []
+    for method, accuracy in zip(methods, license_plate_accuracy):
+        ci = calculate_ci(accuracy / 100, n)  # Accuracy needs to be a proportion
+        ci_results.append((method, 'License Plate Accuracy', accuracy, ci))
+
+    # Calculate CIs for Character Accuracy
+    for method, accuracy in zip(methods, character_accuracy):
+        ci = calculate_ci(accuracy / 100, n)  # Accuracy needs to be a proportion
+        ci_results.append((method, 'Character Accuracy', accuracy, ci))
+
+    # Convert CI results to DataFrame
+    ci_df = pd.DataFrame(ci_results, columns=['Method', 'Metric', 'Accuracy', 'CI'])
+    ci_df['CI Lower'] = ci_df['CI'].apply(lambda x: x[0])
+    ci_df['CI Upper'] = ci_df['CI'].apply(lambda x: x[1])
+    ci_df = ci_df.drop(columns='CI')
+
+    # Print CI results
+    print("Confidence Intervals for Accuracy Metrics:")
+    print(ci_df)
+
+    # Plotting the Confidence Intervals
+    plt.figure(figsize=(12, 6))
+    for idx, row in ci_df.iterrows():
+        plt.errorbar(row['Method'], row['Accuracy'], 
+                     yerr=[[row['Accuracy'] - row['CI Lower']], [row['CI Upper'] - row['Accuracy']]], 
+                     fmt='o', label=row['Metric'] if idx % 6 == 0 else "", capsize=5)
+
+    plt.title('Confidence Intervals for License Plate and Character Accuracy')
+    plt.ylabel('Accuracy (%)')
+    plt.xticks(rotation=45)
+    plt.legend()
+    plt.grid()
     plt.tight_layout()
+    plt.show()
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy import stats
+
+# Function to calculate confidence interval
+def calculate_ci(p, n, confidence=0.95):
+    z = stats.norm.ppf(1 - (1 - confidence) / 2)  # Z-score
+    se = np.sqrt((p * (1 - p)) / n)  # Standard error
+    ci_lower = p - z * se  # Lower bound
+    ci_upper = p + z * se  # Upper bound
+    return ci_lower, ci_upper
+
+# Function to calculate confidence intervals and plot them
+def calculate_and_plot_confidence_intervals(methods, license_plate_accuracy, character_accuracy, n=100):
+    # Combine into a DataFrame for easier analysis
+    data = pd.DataFrame({
+        'Method': np.repeat(methods, 1),  # Repeat methods for each accuracy
+        'License Plate Accuracy': license_plate_accuracy,  # Already padded if necessary
+        'Character Accuracy': character_accuracy  # Already padded if necessary
+    })
+
+    # Calculate CIs for License Plate Accuracy
+    ci_results = []
+    for method, accuracy in zip(methods, license_plate_accuracy):
+        ci = calculate_ci(accuracy / 100, n)  # Accuracy needs to be a proportion
+        ci_results.append((method, 'License Plate Accuracy', accuracy, ci))
+
+    # Calculate CIs for Character Accuracy
+    for method, accuracy in zip(methods, character_accuracy):
+        ci = calculate_ci(accuracy / 100, n)  # Accuracy needs to be a proportion
+        ci_results.append((method, 'Character Accuracy', accuracy, ci))
+
+    # Convert CI results to DataFrame
+    ci_df = pd.DataFrame(ci_results, columns=['Method', 'Metric', 'Accuracy', 'CI'])
+    ci_df['CI Lower'] = ci_df['CI'].apply(lambda x: x[0])
+    ci_df['CI Upper'] = ci_df['CI'].apply(lambda x: x[1])
+    ci_df = ci_df.drop(columns='CI')
+
+    # Display the CI results in a table format
+    print("Confidence Intervals for Accuracy Metrics:")
+    print(ci_df.to_string(index=False))
+
+    # Plotting the Confidence Intervals
+    plt.figure(figsize=(12, 6))
+    for idx, row in ci_df.iterrows():
+        # Calculate error values ensuring they are non-negative
+        lower_error = max(0, row['Accuracy'] - row['CI Lower'])
+        upper_error = max(0, row['CI Upper'] - row['Accuracy'])
+        
+        plt.errorbar(row['Method'], row['Accuracy'], 
+                     yerr=[[lower_error], [upper_error]], 
+                     fmt='o', label=row['Metric'] if idx % 6 == 0 else "", capsize=5)
+
+    plt.title('Confidence Intervals for License Plate and Character Accuracy')
+    plt.ylabel('Accuracy (%)')
+    plt.xticks(rotation=45)
+    plt.legend()
+    plt.grid()
+
+    # Adding a table below the plot
+    plt.table(cellText=ci_df.values,
+              colLabels=ci_df.columns,
+              cellLoc='center',
+              loc='bottom',
+              bbox=[0.0, -0.5, 1.0, 0.3])  # Adjust the bbox as needed for your layout
+
+    plt.subplots_adjust(left=0.1, bottom=0.3, right=0.9, top=0.9, wspace=0.4, hspace=0.7)
     plt.show()
