@@ -203,69 +203,94 @@ def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_
     print("\n")
     print("TOTAL CHARACTERS DETECTED CORRECTLY: ", suma)   
 
-
-import matplotlib.pyplot as plt
-import numpy as np
-
 def plot_detection_accuracies(plates_detected, plates_not_detected_previously, total_license_plates,
-                              characters_detected, characters_not_detected_previously, total_characters,
+                              characters_detected, characters_not_detected_previously, total_characters, 
                               total_license_plates_correct, total_characters_correct):
     methods = ['SVM', 'CNN', 'OCR', 'SVM_FILTER', 'CNN_FILTER', 'OCR_FILTER']
 
-
+    # Calculate accuracies
     license_plate_accuracy = [(detected / total_license_plates) * 100 for detected in plates_detected]
     character_accuracy = [(detected / total_characters) * 100 for detected in characters_detected]
+    comb_acc_license = (total_license_plates_correct/total_license_plates)*100
+    comb_acc_char = (total_characters_correct/total_characters)*100
 
-    fig, axs = plt.subplots(1, 3, figsize=(18, 6))
+
+    fig, axs = plt.subplots(2, 2, figsize=(12, 12))  # Create a 2x2 subplot
     x = np.arange(len(methods))  # Label locations
 
+    # License Plates Detected Plot
+    axs[0, 0].bar(x - 0.2, plates_detected, width=0.4, label='Detected')
+    axs[0, 0].bar(x + 0.2, plates_not_detected_previously, width=0.4, label='Not Detected Previously')
+    axs[0, 0].set_xticks(x)
+    axs[0, 0].set_xticklabels(methods)
+    axs[0, 0].set_ylabel('Number of License Plates')
+    axs[0, 0].set_title('License Plates Detected')
+    axs[0, 0].legend()
 
-    axs[0].bar(x - 0.2, plates_detected, width=0.4, label='Detected')
-    axs[0].bar(x + 0.2, plates_not_detected_previously, width=0.4, label='Not Detected Previously')
-    axs[0].set_xticks(x)
-    axs[0].set_xticklabels(methods)
-    axs[0].set_ylabel('Number of License Plates')
-    axs[0].set_title('License Plates Detected')
-    axs[0].legend()
+    # Characters Detected Plot
+    axs[0, 1].bar(x - 0.2, characters_detected, width=0.4, label='Detected')
+    axs[0, 1].bar(x + 0.2, characters_not_detected_previously, width=0.4, label='Not Detected Previously')
+    axs[0, 1].set_xticks(x)
+    axs[0, 1].set_xticklabels(methods)
+    axs[0, 1].set_ylabel('Number of Characters')
+    axs[0, 1].set_title('Characters Detected')
+    axs[0, 1].legend()
+
+    # Combined Accuracy Plot for License Plates and Characters
+    width = 0.35  # Width of the bars
+    axs[1, 0].bar(x - width/2, license_plate_accuracy, width=width, label='License Plate Accuracy', alpha=0.7)
+    axs[1, 0].bar(x + width/2, character_accuracy, width=width, label='Character Accuracy', alpha=0.7)
+
+    axs[1, 0].set_xticks(x)
+    axs[1, 0].set_xticklabels(methods)
+    axs[1, 0].set_ylabel('Accuracy (%)')
+    axs[1, 0].set_title('Accuracy of License Plates and Characters')
+
+    # Add accuracy labels on top of the bars for both license plates and characters
+    for i in range(len(methods)):
+        axs[1, 0].text(i - width/2, license_plate_accuracy[i] + 1, f'{license_plate_accuracy[i]:.2f}%', ha='center')
+        axs[1, 0].text(i + width/2, character_accuracy[i] + 1, f'{character_accuracy[i]:.2f}%', ha='center')
+
+    axs[1, 0].legend()
+
+    # Combined Accuracy in the bottom-right subplot (1, 1)
+    axs[1, 1].bar(['License Plates', 'Characters'], [comb_acc_license, comb_acc_char], color=['blue', 'orange'])
+    axs[1, 1].set_ylim(0, 100)  # Set the limit for y-axis to 0-100%
+    axs[1, 1].set_ylabel('Combined Accuracy (%)')
+    axs[1, 1].set_title('Combined Accuracy of License Plates and Characters')
+
+    # Add combined accuracy labels on top of the bars
+    axs[1, 1].text(0, comb_acc_license + 1, f'{comb_acc_license:.2f}%', ha='center')
+    axs[1, 1].text(1, comb_acc_char + 1, f'{comb_acc_char:.2f}%', ha='center')
+
+    plt.tight_layout()
+    plt.show()
 
 
-    axs[0].text(0.5, max(plates_detected) + 5, f'Total Correct: {total_license_plates_correct}', 
-                fontsize=12, ha='center')
+def plot_train_test_validation(train_accuracies, test_accuracies, val_accuracies, labels):
+    x = np.arange(len(labels))  # Label locations
+    width = 0.25  # Width of the bars
 
-    axs[1].bar(x - 0.2, characters_detected, width=0.4, label='Detected')
-    axs[1].bar(x + 0.2, characters_not_detected_previously, width=0.4, label='Not Detected Previously')
-    axs[1].set_xticks(x)
-    axs[1].set_xticklabels(methods)
-    axs[1].set_ylabel('Number of Characters')
-    axs[1].set_title('Characters Detected')
-    axs[1].legend()
+    fig, ax = plt.subplots(figsize=(12, 6))
 
+    # Plot bars for each accuracy
+    bars1 = ax.bar(x - width, train_accuracies, width, label='Training Accuracy')
+    bars2 = ax.bar(x, test_accuracies, width, label='Testing Accuracy')
+    bars3 = ax.bar(x + width, val_accuracies, width, label='Validation Accuracy')
 
-    axs[1].text(0.5, max(characters_detected) + 50, f'Total Correct: {total_characters_correct}', 
-                fontsize=12, ha='center')
+    # Add labels and title
+    ax.set_ylabel('Accuracy (%)')
+    ax.set_title('Model Accuracy for License Plates and Characters')
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels)
+    ax.legend()
 
-    # Plotting Accuracy for License Plates and Characters
-    width = 0.3  # Width of the bars
-
-    license_bars = axs[2].bar(x - width/2, license_plate_accuracy, width=width, label='License Plate Accuracy')
-
-    character_bars = axs[2].bar(x + width/2, character_accuracy, width=width, label='Character Accuracy')
-
-    axs[2].set_xticks(x)
-    axs[2].set_xticklabels(methods)
-    axs[2].set_ylabel('Accuracy (%)')
-    axs[2].set_title('License Plate and Character Accuracy by Method')
-    for bar in license_bars:
-        height = bar.get_height()
-        axs[2].text(bar.get_x() + bar.get_width() / 2., height + 1, f'{height:.2f}%', 
+    # Add accuracy labels on top of the bars
+    for bars in [bars1, bars2, bars3]:
+        for bar in bars:
+            height = bar.get_height()
+            ax.text(bar.get_x() + bar.get_width() / 2., height + 1, f'{height:.2f}%', 
                     ha='center', va='bottom')
-
-    for bar in character_bars:
-        height = bar.get_height()
-        axs[2].text(bar.get_x() + bar.get_width() / 2., height + 1, f'{height:.2f}%', 
-                    ha='center', va='bottom')
-
-    axs[2].legend()
 
     plt.tight_layout()
     plt.show()
