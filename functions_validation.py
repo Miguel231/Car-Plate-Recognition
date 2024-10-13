@@ -100,7 +100,6 @@ def evaluate_predictions(ground_truth, predictions, model_name):
                     if gt not in matched_ground_truth and predicted_sequence in gt:
                         # If a match is found, mark it
                         matched_ground_truth.add(gt)
-                        total_correct += 1
                         total_characters_matched += len(predicted_sequence)  # Add length of matched sequence
                         matched = True
                         break  # Exit the ground truth loop once matched
@@ -109,12 +108,10 @@ def evaluate_predictions(ground_truth, predictions, model_name):
                 break
 
         if not matched:  # If no match was found
-            total_mismatched += 1
             total_unmatched_characters += len(predicted)  # Add length of unmatched predicted sequence
 
-    print(f"Total Correct Matches: {total_correct}")
+
     print(f"Total Characters Matched: {total_characters_matched}")
-    print(f"Total Mismatched Predictions: {total_mismatched}")
     print(f"Total Unmatched Characters: {total_unmatched_characters}")
 
     #plot_confusion_matrix(ground_truth, predictions, model_name)
