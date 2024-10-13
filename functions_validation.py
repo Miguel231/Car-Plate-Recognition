@@ -58,7 +58,7 @@ def evaluate_predictions(ground_truth, predictions):
             else:
                 if len(pred) < 7:
                     for length in range(5, 2, -1):  
-                        if chr_gt[:length] == pred:
+                        if gt[:length] == pred:
                             total_characters_matched += len(pred)
                             break 
                     else:
