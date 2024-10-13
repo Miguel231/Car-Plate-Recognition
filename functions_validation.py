@@ -35,11 +35,9 @@ def load_predictions_from_txt(txt_file):
 
     return predictions 
 
-def evaluate_predictions(ground_truth, predictions, model_name):
+def evaluate_predictions(ground_truth, predictions):
     matched_ground_truth = set()  # To keep track of matched ground truth labels
-    total_correct = 0
     total_characters_matched = 0
-    total_mismatched = 0
     total_unmatched_characters = 0  # New counter for unmatched characters
 
     # Define lengths to check in descending order
@@ -48,27 +46,25 @@ def evaluate_predictions(ground_truth, predictions, model_name):
     for predicted in predictions:
         matched = False
 
-        for length in lengths_to_check:
-            if len(predicted) >= length:
-                predicted_sequence = predicted[:length]  
-
-                for gt in ground_truth:
-                    if gt not in matched_ground_truth and predicted_sequence in gt:
-                        # If a match is found, mark it
-                        matched_ground_truth.add(gt)
+        # Always check the first ground truth item first
+        if ground_truth:
+            first_gt = ground_truth[0]  # Get the first ground truth item
+            for length in lengths_to_check:
+                if len(predicted) >= length:
+                    predicted_sequence = predicted[:length]  
+                    # Compare against the first ground truth item
+                    if first_gt not in matched_ground_truth and predicted_sequence in first_gt:
+                        matched_ground_truth.add(first_gt)
                         total_characters_matched += len(predicted_sequence)  
                         matched = True
-                        break  
-
-            if matched: 
-                break
+                        break  # Break once a match is found
 
         if not matched:  
             total_unmatched_characters += len(predicted)
 
-
     print(f"Total Characters Matched: {total_characters_matched}")
     print(f"Total Unmatched Characters: {total_unmatched_characters}")
+
 
 
 def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_fil, cnn_txt_fil, ocr_txt_fil):
@@ -97,11 +93,5 @@ def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_
     print("OCR_FILTER:")    
     evaluate_predictions(ground_truth, ocr_predictions_fil, "OCR_f")
 
-    svm_accuracy = np.mean([gt == pred for gt, pred in zip(ground_truth, svm_predictions)])
-    cnn_accuracy = np.mean([gt == pred for gt, pred in zip(ground_truth, cnn_predictions)])
-    ocr_accuracy = np.mean([gt == pred for gt, pred in zip(ground_truth, ocr_predictions)])
-    svm_accuracy_fil = np.mean([gt == pred for gt, pred in zip(ground_truth, svm_predictions_fil)])
-    cnn_accuracy_fil = np.mean([gt == pred for gt, pred in zip(ground_truth, cnn_predictions_fil)])
-    ocr_accuracy_fil = np.mean([gt == pred for gt, pred in zip(ground_truth, ocr_predictions_fil)])
 
     
