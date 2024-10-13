@@ -21,11 +21,11 @@ def load_predictions_from_txt(txt_file):
         for line in file:
             prediction = line.strip()  # Remove whitespace around the line
             # Filter out the unwanted characters
-            if prediction.startswith("E -") or prediction.startswith("E-"):
-                prediction = prediction.replace("E -", "").replace("E-", "").strip()
+            if prediction.startswith("E -") or prediction.startswith("E-") or prediction.startswith("E - ") or prediction.startswith("E- ") or prediction.startswith("€") :
+                prediction = prediction.replace("E -", "").replace("E-", "").replace("E - ", "").replace("E- ", "").strip()
                 
             if len(prediction) > 7:
-                prediction = prediction[:7].upper()  
+                prediction = prediction.upper()  
             elif len(prediction) == 7:
                 prediction = prediction.upper() 
 
@@ -34,42 +34,35 @@ def load_predictions_from_txt(txt_file):
     return predictions 
 
 
-def evaluate_predictions(ground_truth, predictions):
-    total_characters_matched = 0
-    total_unmatched_characters = 0  # New counter for unmatched characters
-
+def evaluate_predictions(ground_truth, predictions, f, num):
+    #total_characters_matched = 0
+    #total_unmatched_characters = 0  # New counter for unmatched characters
+    c = 0
+    fo = 0
     for gt, pred in zip(ground_truth, predictions):
-        if len(pred)>8:
-                total_unmatched_characters += len(gt)
-        else:
-            if len(pred) == 8:
-                pred = pred[1:]
-                for chr_gt,pred_gt in zip(gt,pred):
-                    if chr_gt == pred_gt:
-                        total_characters_matched += 1  
-                    else:
-                        total_unmatched_characters+=1
-            elif len(pred) == 7:
-                for chr_gt,pred_gt in zip(gt,pred):
-                    if chr_gt == pred_gt:
-                        total_characters_matched += 1  
-                    else:
-                        total_unmatched_characters+=1
+        if num == 0:
+            if gt == pred:
+                f.append(1)
+                f+=1
             else:
-                if len(pred) < 7:
-                    for length in range(5, 2, -1):  
-                        if gt[:length] == pred:
-                            total_characters_matched += len(pred)
-                            break 
-                    else:
-                        total_unmatched_characters += len(gt) 
+                f.append(0)   
+        else:
+            if gt == pred:
+                if f[c] == 0:
+                    f[c] == 1
+                    f+=1
+        c+=1
 
 
-    print(f"Total Characters Matched: {total_characters_matched}")
-    print(f"Total Unmatched Characters: {total_unmatched_characters}")
+    print("TRUE:",fo)
+    print("TOTAL:",c)
+    #print(f"Total Characters Matched: {total_characters_matched}")
+    #print(f"Total Unmatched Characters: {total_unmatched_characters}")
+    num = 1
+    return num
 
 
-def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_fil, cnn_txt_fil, ocr_txt_fil):
+def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_fil, cnn_txt_fil, ocr_txt_fil,f):
     ground_truth = load_ground_truth_from_filenames(image_dir)
     svm_predictions = load_predictions_from_txt(svm_txt)
     cnn_predictions = load_predictions_from_txt(cnn_txt)
@@ -77,23 +70,24 @@ def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_
     svm_predictions_fil = load_predictions_from_txt(svm_txt_fil)
     cnn_predictions_fil = load_predictions_from_txt(cnn_txt_fil)
     ocr_predictions_fil = load_predictions_from_txt(ocr_txt_fil)
+    num = 0
     print("SVM:")
-    evaluate_predictions(ground_truth, svm_predictions)
+    num = evaluate_predictions(ground_truth, svm_predictions, f, num)
     print("\n")
     print("CNN:")
-    evaluate_predictions(ground_truth, cnn_predictions)
+    evaluate_predictions(ground_truth, cnn_predictions, f, num)
     print("\n")
     print("OCR:")    
-    evaluate_predictions(ground_truth, ocr_predictions)
+    evaluate_predictions(ground_truth, ocr_predictions, f, num)
     print("\n")
     print("SVM_FILTER:")    
-    evaluate_predictions(ground_truth, svm_predictions_fil)
+    evaluate_predictions(ground_truth, svm_predictions_fil, f, num)
     print("\n")
     print("CNN_FILTER:")
-    evaluate_predictions(ground_truth, cnn_predictions_fil)
+    evaluate_predictions(ground_truth, cnn_predictions_fil, f, num)
     print("\n")
     print("OCR_FILTER:")    
-    evaluate_predictions(ground_truth, ocr_predictions_fil)
+    evaluate_predictions(ground_truth, ocr_predictions_fil, f, num)
 
 
     
