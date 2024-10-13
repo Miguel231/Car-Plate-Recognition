@@ -1,45 +1,8 @@
 import os
-from sklearn.metrics import classification_report, confusion_matrix
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 
-def print_evaluation_metrics(true_labels, predictions, model_name, class_names):
-    print(f"Evaluation Metrics for {model_name}:")
-    report = classification_report(true_labels, predictions, target_names=class_names)
-    print(report)
-
-def plot_confusion_matrix(true_labels, predictions, title):
-    cm = confusion_matrix(true_labels, predictions)
-    plt.figure(figsize=(10, 7))
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
-    plt.title(f"Confusion Matrix - {title}")
-    plt.xlabel("Predicted Labels")
-    plt.ylabel("True Labels")
-    plt.show()
-
-def plot_metrics_comparison(cnn_metrics, svm_metrics, ocr_metrics,cnn_metrics_fil, svm_metrics_fil, ocr_metrics_fil,metric_names):
-    x = np.arange(len(metric_names)) 
-    width = 0.35  # the width of the bars
-
-    fig, ax = plt.subplots()
-    ax.bar(x - width, cnn_metrics, width, label='CNN')
-    ax.bar(x, svm_metrics, width, label='SVM')
-    ax.bar(x + width, ocr_metrics, width, label='OCR')
-
-    ax.bar(x - width, cnn_metrics_fil, width, label='CNN_F', alpha=0.5)
-    ax.bar(x, svm_metrics_fil, width, label='SVM_F', alpha=0.5)
-    ax.bar(x + width, ocr_metrics_fil, width, label='OCR_F', alpha=0.5)
-
-    ax.set_ylabel('Scores')
-    ax.set_title('Comparison of Metrics between CNN, SVM and OCR')
-    ax.set_xticks(x)
-    ax.set_xticklabels(metric_names)
-    ax.legend()
-
-    plt.show()
-
-import os
 
 def load_ground_truth_from_filenames(image_dir):
     ground_truth = []
@@ -60,10 +23,6 @@ def load_predictions_from_txt(txt_file):
     with open(txt_file, 'r') as file:
         for line in file:
             prediction = line.strip()  # Eliminar espacios en blanco alrededor
-            # Si la línea está vacía, agregar "U" a las predicciones
-            if not prediction:
-                predictions.append("U")
-                continue
             prediction = line.strip()  
             if prediction.startswith("E -") or prediction.startswith("E-"):
                 prediction = prediction.replace("E -", "").replace("E-", "").strip()
@@ -111,8 +70,6 @@ def evaluate_predictions(ground_truth, predictions, model_name):
     print(f"Total Characters Matched: {total_characters_matched}")
     print(f"Total Unmatched Characters: {total_unmatched_characters}")
 
-    #plot_confusion_matrix(ground_truth, predictions, model_name)
-
 
 def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_fil, cnn_txt_fil, ocr_txt_fil):
     ground_truth = load_ground_truth_from_filenames(image_dir)
@@ -147,13 +104,4 @@ def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_
     cnn_accuracy_fil = np.mean([gt == pred for gt, pred in zip(ground_truth, cnn_predictions_fil)])
     ocr_accuracy_fil = np.mean([gt == pred for gt, pred in zip(ground_truth, ocr_predictions_fil)])
 
-    metric_names = ['Accuracy']
-    cnn_metrics = [cnn_accuracy]
-    svm_metrics = [svm_accuracy]
-    ocr_metrics = [ocr_accuracy]
-    cnn_metrics_fil = [cnn_accuracy_fil]
-    svm_metrics_fil = [svm_accuracy_fil]
-    ocr_metrics_fil = [ocr_accuracy_fil]
-
-    #plot_metrics_comparison(cnn_metrics, svm_metrics, ocr_metrics,cnn_metrics_fil, svm_metrics_fil, ocr_metrics_fil, metric_names)
-
+    

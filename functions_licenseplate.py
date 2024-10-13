@@ -144,7 +144,6 @@ def display_and_save_cropped_plates(cropped_plates_dict, save_folder):
                 cv2.imwrite(save_path, cropped_plate)
                 print(f"Saved cropped plate to {save_path}")
         
-#to show the images
 def show_image(image, title="Image"):
     plt.figure(figsize=(10, 6))
     plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
@@ -152,7 +151,7 @@ def show_image(image, title="Image"):
     plt.title(title)
     plt.show()
 
-#plate recognition
+
 def plate_recognition(image_folder):
     file_list = os.listdir(image_folder)
     image_extensions = ['.jpg', '.jpeg', '.png']
@@ -161,29 +160,18 @@ def plate_recognition(image_folder):
     random_image_path = os.path.join(image_folder, random_image)
     image = cv2.imread(random_image_path)
 
-    #define range of blue europe license plate
     lower_blue = np.array([100, 100, 100])  
     upper_blue = np.array([140, 255, 255])  
 
-    #HSV space color
     hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-
-    #create a mask for blues
     mask = cv2.inRange(hsv_image, lower_blue, upper_blue)
-
-    #find the countors
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-    #Process each countour found
     for contour in contours:
         if cv2.contourArea(contour) > 100:  # minimum range
             x, y, w, h = cv2.boundingRect(contour)
-
-            #height must be at least 1.4 times greater than the width
             if h >= 1.4 * w:
-                #to capture the entire license plate
                 extended_width = 520  
-                scale_factor = extended_width / 40  #we assume the width of the detected blue rectangle is 40 mm
+                scale_factor = extended_width / 40  
                 new_width = int(w * scale_factor)
 
                 new_x = x
@@ -203,8 +191,8 @@ YOLO LICENSE PLATE (EL DE LA LARA)
 """
 
 def boundingbox(folder_path):
-    coco_model = YOLO('yolov8n.pt')
-    license_plate_detector = YOLO('YOLO_Files/license_plate_detector.pt')
+    license_plate_detector_yolov8 = YOLO('YOLO_Files/license_plate_detector.pt')
+    #license_plate_detector_yolov5 = YOLO('YOLO_Files/license_plate_detector.pt')
 
     # Dictionary to hold results: {image_filename: [list_of_cropped_license_plate_images]}
     results = {}
@@ -215,20 +203,17 @@ def boundingbox(folder_path):
 
             if frame is None:
                 print(f"Error loading image: {image_file}")
-                continue  # Skip images that can't be loaded
+                continue  
 
-            # Suppress unnecessary logging by the YOLO model
-            license_plates = license_plate_detector(frame, verbose=False)[0]  
+            license_plates = license_plate_detector_yolov8(frame, verbose=False)[0]  
 
             cropped_license_plates = []
 
-            # Crop and save all detected license plates
             for license_plate in license_plates.boxes.data.tolist():
                 x1, y1, x2, y2, score, class_id = license_plate
                 cropped_plate = frame[int(y1):int(y2), int(x1):int(x2)]  
                 cropped_license_plates.append(cropped_plate) 
 
-            # Only save results if any license plates were detected
             if cropped_license_plates:
                 results[image_file] = cropped_license_plates
 

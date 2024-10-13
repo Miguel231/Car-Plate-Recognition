@@ -47,7 +47,6 @@ def train_test(source_folder, train_folder, test_folder, val_folder, random_stat
             dest_path = os.path.join(destination_folder, file_name)
             shutil.copy2(source_path, dest_path)  # Use shutil.copy2 to preserve file metadata
 
-    # Move the files to their respective folders
     move_files(train_indices, train_folder)
     move_files(test_indices, test_folder)
     move_files(val_indices, val_folder)
@@ -55,7 +54,6 @@ def train_test(source_folder, train_folder, test_folder, val_folder, random_stat
     print(f"Data split complete: {len(train_indices)} training files, {len(test_indices)} testing files, {len(val_indices)} validation files.")
 
 def erase_double_images(folder_path):
-    # Loop through each file in the folder
     for filename in os.listdir(folder_path):
         if '(1)' in filename:
             file_path = os.path.join(folder_path, filename)

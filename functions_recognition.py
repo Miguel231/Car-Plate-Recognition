@@ -157,7 +157,6 @@ def segment_characters(image):
     plt.imshow(img_binary_lp, cmap='gray')
     plt.show()
 
-    # Find contours corresponding to characters
     char_list = find_contours(dimensions, img_binary_lp)
     
     return char_list
@@ -174,13 +173,9 @@ from PIL import Image
 from PIL import ImageOps
 
 def easy_ocr_method(license_plate_image):
-    # Initialize EasyOCR Reader
     reader = easyocr.Reader(['en'])
 
-    # Use EasyOCR to detect text
     results = reader.readtext(license_plate_image)
-
-    # Print the detected results
     license_plate_text = ""
     for (bbox, text, prob) in results:
         print(f"Detected Text: {text}, Probability: {prob}")
@@ -189,8 +184,6 @@ def easy_ocr_method(license_plate_image):
     return license_plate_text
 
 def best_segmentation_method(method1, method2):
-
-    # Almacenar los resultados con la cantidad de caracteres detectados
     results = [
         (method1, len(method1)),
         (method2, len(method2))
@@ -210,15 +203,13 @@ def filter_spain_plates(spain):
     
     letter_to_number = {'G': '6', 'B': '8', 
                         'I': '1', 'Z': '2', 'O': '0'}
-    
-    #separate the string
+
     if len(spain) == 8:
         numbers = spain[1:4]
         letters = spain[4:]
 
         correct = "E - "
     elif len(spain) == 7:
-        #separate the string
         numbers = spain[:4]
         letters = spain[4:]
 
@@ -229,11 +220,9 @@ def filter_spain_plates(spain):
 
         correct = "E - "
 
-    #filter
     correct_letters = ''.join([number_to_letter.get(char, char) for char in letters])
     correct_numbers = ''.join([letter_to_number.get(char, char) for char in numbers])
-    
-    #combine
+ 
     correct = correct + correct_numbers + correct_letters
 
     if "AEIOU" in correct[-3:]:
@@ -242,6 +231,8 @@ def filter_spain_plates(spain):
         
         return correct
     else:
+        if correct == "E - ":
+            correct = "E - U"   
         return correct
 
 

@@ -10,15 +10,6 @@ from sklearn.preprocessing import StandardScaler, LabelEncoder
 from PIL import Image
 
 def train_svm_and_get_accuracy(base_path):
-    """
-    Loads images from the specified folder, trains an SVM classifier, and returns the accuracy.
-
-    Parameters:
-    - base_path (str): The base directory containing subdirectories of labeled images.
-
-    Returns:
-    - accuracy (float): The accuracy of the trained SVM classifier on the test set.
-    """
     def load_images_from_folder(base_path):
             images = []
             labels = []
@@ -29,14 +20,12 @@ def train_svm_and_get_accuracy(base_path):
             for folder in os.listdir(base_path):
                 folder_path = os.path.join(base_path, folder)
                 if os.path.isdir(folder_path):
-                    #load each image
                     for img_name in os.listdir(folder_path):
                         img_path = os.path.join(folder_path, img_name)
 
                         _, ext = os.path.splitext(img_name)
                         if ext.lower() in valid_image_extensions:
                             try:
-                                #convert to grayscale, and resize to a standard size (e.g., 28x28)
                                 img = Image.open(img_path).convert('L').resize((28, 28))
                                 img_array = np.array(img).flatten()  # Flatten the image
                                 images.append(img_array)
