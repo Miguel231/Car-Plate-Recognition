@@ -34,12 +34,14 @@ def load_predictions_from_txt(txt_file):
     return predictions 
 
 
-def evaluate_predictions(ground_truth, predictions, model_name):
+def evaluate_predictions(ground_truth, predictions):
     total_correct = 0
     total_characters_matched = 0
     total_unmatched_characters = 0  # New counter for unmatched characters
 
     for gt, pred in zip(ground_truth, predictions):
+        print("GT:", gt)
+        print("PRED:", pred)
         if gt == pred:
             total_correct += 1  # Count total correct predictions
             total_characters_matched += len(gt)  # Count matched characters
@@ -52,7 +54,6 @@ def evaluate_predictions(ground_truth, predictions, model_name):
             if g_char == p_char:
                 total_characters_matched += 1
 
-    print(f"Model: {model_name}")
     print(f"Total Correct Predictions: {total_correct} out of {len(ground_truth)}")
     print(f"Total Characters Matched: {total_characters_matched}")
     print(f"Total Unmatched Characters: {total_unmatched_characters}")
