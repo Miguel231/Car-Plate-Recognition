@@ -52,11 +52,9 @@ def load_predictions_from_txt(txt_file):
     predictions = []
     with open(txt_file, 'r') as file:
         for line in file:
-            prediction = line.strip()  
-            if not prediction:
+            if len(line) == 0:
                 predictions.append("U")
-                continue 
-
+            prediction = line.strip()  
             if prediction.startswith("E -") or prediction.startswith("E-"):
                 prediction = prediction.replace("E -", "").replace("E-", "").strip()
 
