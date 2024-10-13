@@ -40,7 +40,7 @@ def evaluate_predictions(ground_truth, predictions):
 
     for gt, pred in zip(ground_truth, predictions):
         if len(pred)>8:
-                total_unmatched_characters += 8
+                total_unmatched_characters += len(gt)
         else:
             for chr_gt,pred_gt in zip(gt,pred):
                 if chr_gt == pred_gt:
