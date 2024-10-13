@@ -25,7 +25,7 @@ def load_predictions_from_txt(txt_file):
                 prediction = prediction.replace("E -", "").replace("E-", "").replace("E - ", "").replace("E- ", "").strip()
                 
             if len(prediction) > 7:
-                prediction = prediction.upper()  
+                prediction = prediction[:7].upper()  
             elif len(prediction) == 7:
                 prediction = prediction.upper() 
 
