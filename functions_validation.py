@@ -95,9 +95,4 @@ def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_
     print("OCR_FILTER:")    
     fo, num = evaluate_predictions(ground_truth, ocr_predictions_fil, f, num)
     suma+=fo
-    print("TOTAL DETECTED CORRECTLY: ", suma)
-
-
-
-
-    
+    print("TOTAL LICENSE PLATES DETECTED CORRECTLY: ", suma)    
