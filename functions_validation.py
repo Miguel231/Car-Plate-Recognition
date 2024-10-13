@@ -95,14 +95,15 @@ def evaluate_predictions_characters(ground_truth, predictions, f, num):
                     f.append(1)
                     fo+=1
                 else:
-                    f.append(0)   
+                    f.append(0)
+                c+=1   
         else:
             for char_pred in pred:
                 if char_pred in gt:
                     if f[c] == 0:
                         f[c] == 1
                         fo+=1
-        c+=1
+                c+=1
 
 
     print("TRUE CHARACTERS:",fo)
