@@ -43,14 +43,14 @@ def evaluate_predictions(ground_truth, predictions, f, num):
         if num == 0:
             if gt == pred:
                 f.append(1)
-                f+=1
+                fo+=1
             else:
                 f.append(0)   
         else:
             if gt == pred:
                 if f[c] == 0:
                     f[c] == 1
-                    f+=1
+                    fo+=1
         c+=1
 
 
