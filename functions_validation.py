@@ -76,7 +76,7 @@ def load_predictions_from_txt(txt_file):
 
     return predictions 
 
-def evaluate_predictions_with_character_count(ground_truth, predictions, model_name):
+def evaluate_predictions(ground_truth, predictions, model_name):
     matched_ground_truth = set()  # To keep track of matched ground truth labels
     total_correct = 0
     total_characters_matched = 0
