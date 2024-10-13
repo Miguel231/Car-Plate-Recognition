@@ -74,7 +74,7 @@ def evaluate_predictions(ground_truth, predictions, f, num):
         else:
             if gt == pred:
                 if f[c] == 0:
-                    f[c] == 1
+                    f[c] = 1
                     fo+=1
         c+=1
 
@@ -116,7 +116,7 @@ def evaluate_predictions_characters(ground_truth, predictions, f, num):
             for char_pred in pred:
                 if char_pred in gt:
                     if f[c] == 0:
-                        f[c] == 1
+                        f[c] = 1
                         fo+=1
                 c+=1
 
