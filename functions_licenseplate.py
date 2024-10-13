@@ -59,16 +59,17 @@ def detect_and_crop_license_plate(binary_image, original_image):
         img_copy = original_image.copy()
         cv2.drawContours(img_copy, [license_plate_contour], -1, (0, 255, 0), 3)
 
+        # Transform the detected license plate area
         license_plate = four_point_transform(original_image, license_plate_contour.reshape(4, 2))
 
+        # Correctly show images using imshow with window names
         try:
-            cv2.imshow(license_plate)
-            cv2.imshow(img_copy)
+            cv2.imshow("Cropped License Plate", license_plate)  # Add window name
+            cv2.imshow("Detected License Plate", img_copy)      # Add window name
+            cv2.waitKey(0)                                      # Wait for a key press
+            cv2.destroyAllWindows()                              # Close all OpenCV windows
         except ImportError:
-            cv2.imshow("Cropped License Plate", license_plate)
-            cv2.imshow("Detected License Plate", img_copy)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
+            print("OpenCV cannot display images. Please check your installation.")
 
         print("License plate detected")
         return license_plate, img_copy
