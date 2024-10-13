@@ -88,15 +88,28 @@ def evaluate_predictions(ground_truth, predictions, f, num):
 def evaluate_predictions_characters(ground_truth, predictions, f, num):
     c = 0
     fo = 0
+    s = 0
     for gt, pred in zip(ground_truth, predictions):
         if num == 0:
-            for char_pred in pred:
-                if char_pred in gt:
-                    f.append(1)
-                    fo+=1
-                else:
+            if len(pred)<7:
+                for char_pred in pred:
+                    if char_pred in gt:
+                        f.append(1)
+                        fo+=1
+                    else:
+                        f.append(0)
+                    c+=1
+                while s != 7:
                     f.append(0)
-                c+=1   
+                    c+=1
+            else:
+                for char_pred in pred:
+                    if char_pred in gt:
+                        f.append(1)
+                        fo+=1
+                    else:
+                        f.append(0)
+                    c+=1   
         else:
             for char_pred in pred:
                 if char_pred in gt:
