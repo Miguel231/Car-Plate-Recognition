@@ -204,20 +204,22 @@ def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_
     print("TOTAL CHARACTERS DETECTED CORRECTLY: ", suma)   
 
 
+import matplotlib.pyplot as plt
+import numpy as np
+
 def plot_detection_accuracies(plates_detected, plates_not_detected_previously, total_license_plates,
                               characters_detected, characters_not_detected_previously, total_characters,
                               total_license_plates_correct, total_characters_correct):
     methods = ['SVM', 'CNN', 'OCR', 'SVM_FILTER', 'CNN_FILTER', 'OCR_FILTER']
 
-    # Calculate accuracy for each method
+
     license_plate_accuracy = [(detected / total_license_plates) * 100 for detected in plates_detected]
     character_accuracy = [(detected / total_characters) * 100 for detected in characters_detected]
 
-    # Plotting License Plates Detected and Accuracy
     fig, axs = plt.subplots(1, 3, figsize=(18, 6))
     x = np.arange(len(methods))  # Label locations
 
-    # License Plates Detected and Not Detected Previously
+
     axs[0].bar(x - 0.2, plates_detected, width=0.4, label='Detected')
     axs[0].bar(x + 0.2, plates_not_detected_previously, width=0.4, label='Not Detected Previously')
     axs[0].set_xticks(x)
@@ -226,11 +228,10 @@ def plot_detection_accuracies(plates_detected, plates_not_detected_previously, t
     axs[0].set_title('License Plates Detected')
     axs[0].legend()
 
-    # Plot total detected correctly for license plates
+
     axs[0].text(0.5, max(plates_detected) + 5, f'Total Correct: {total_license_plates_correct}', 
                 fontsize=12, ha='center')
 
-    # Characters Detected and Not Detected Previously
     axs[1].bar(x - 0.2, characters_detected, width=0.4, label='Detected')
     axs[1].bar(x + 0.2, characters_not_detected_previously, width=0.4, label='Not Detected Previously')
     axs[1].set_xticks(x)
@@ -239,35 +240,30 @@ def plot_detection_accuracies(plates_detected, plates_not_detected_previously, t
     axs[1].set_title('Characters Detected')
     axs[1].legend()
 
-    # Plot total detected correctly for characters
+
     axs[1].text(0.5, max(characters_detected) + 50, f'Total Correct: {total_characters_correct}', 
                 fontsize=12, ha='center')
 
     # Plotting Accuracy for License Plates and Characters
     width = 0.3  # Width of the bars
 
-    # License Plate Accuracy Plot
     license_bars = axs[2].bar(x - width/2, license_plate_accuracy, width=width, label='License Plate Accuracy')
 
-    # Character Accuracy Plot
     character_bars = axs[2].bar(x + width/2, character_accuracy, width=width, label='Character Accuracy')
 
     axs[2].set_xticks(x)
     axs[2].set_xticklabels(methods)
     axs[2].set_ylabel('Accuracy (%)')
     axs[2].set_title('License Plate and Character Accuracy by Method')
-
-    axs[2].text(0.5, max(max(license_plate_accuracy), max(character_accuracy)) + 5, 
-                fontsize=12, ha='center')
-
-    # Add accuracy labels on top of the bars
     for bar in license_bars:
         height = bar.get_height()
-        axs[2].text(bar.get_x() + bar.get_width() / 2., height + 1, f'{height:.2f}%', ha='center', va='bottom')
+        axs[2].text(bar.get_x() + bar.get_width() / 2., height + 1, f'{height:.2f}%', 
+                    ha='center', va='bottom')
 
     for bar in character_bars:
         height = bar.get_height()
-        axs[2].text(bar.get_x() + bar.get_width() / 2., height + 1, f'{height:.2f}%', ha='center', va='bottom')
+        axs[2].text(bar.get_x() + bar.get_width() / 2., height + 1, f'{height:.2f}%', 
+                    ha='center', va='bottom')
 
     axs[2].legend()
 
