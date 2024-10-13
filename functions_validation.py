@@ -158,5 +158,5 @@ def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_
     svm_metrics_fil = [svm_accuracy_fil]
     ocr_metrics_fil = [ocr_accuracy_fil]
 
-    plot_metrics_comparison(cnn_metrics, svm_metrics, ocr_metrics,cnn_metrics_fil, svm_metrics_fil, ocr_metrics_fil, metric_names)
+    #plot_metrics_comparison(cnn_metrics, svm_metrics, ocr_metrics,cnn_metrics_fil, svm_metrics_fil, ocr_metrics_fil, metric_names)
 
