@@ -105,7 +105,7 @@ def evaluate_predictions(ground_truth, predictions, model_name):
                 break
 
         if not matched:  
-            total_unmatched_characters += 7
+            total_unmatched_characters += len(predicted)
 
 
     print(f"Total Characters Matched: {total_characters_matched}")
