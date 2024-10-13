@@ -59,7 +59,7 @@ def evaluate_predictions(ground_truth, predictions, f, num):
     #print(f"Total Characters Matched: {total_characters_matched}")
     #print(f"Total Unmatched Characters: {total_unmatched_characters}")
     num = 1
-    return num
+    return f,num
 
 
 def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_fil, cnn_txt_fil, ocr_txt_fil,f):
@@ -87,7 +87,14 @@ def run_evaluation_with_filenames(image_dir, svm_txt, cnn_txt, ocr_txt, svm_txt_
     evaluate_predictions(ground_truth, cnn_predictions_fil, f, num)
     print("\n")
     print("OCR_FILTER:")    
-    evaluate_predictions(ground_truth, ocr_predictions_fil, f, num)
+    f, num = evaluate_predictions(ground_truth, ocr_predictions_fil, f, num)
+    s = 0
+    for values in f:
+        if values == 1:
+            s+=1
+    print("TOTAL DETECTED CORRECTLY: ", s)
+
+
 
 
     
