@@ -9,7 +9,7 @@ from sklearn.metrics import accuracy_score,  confusion_matrix, ConfusionMatrixDi
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from PIL import Image
 
-def train_svm_and_get_accuracy(base_path):
+def train_svm_and_get_accuracy(base_path, class_names):
     def load_images_from_folder(base_path):
             images = []
             labels = []
@@ -60,7 +60,7 @@ def train_svm_and_get_accuracy(base_path):
     accuracy = accuracy_score(test_labels, test_predictions)
 
     conf_matrix = confusion_matrix(test_labels, test_predictions)
-    disp = ConfusionMatrixDisplay(confusion_matrix=conf_matrix, display_labels=label_encoder.classes_)
+    disp = ConfusionMatrixDisplay(confusion_matrix=conf_matrix, display_labels=class_names)
     disp.plot(cmap=plt.cm.Blues)
     plt.show()
     
