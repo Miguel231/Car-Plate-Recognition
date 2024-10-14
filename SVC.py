@@ -59,7 +59,7 @@ def train_svm_and_get_accuracy(base_path, class_names):
 
     accuracy = accuracy_score(test_labels, test_predictions)
 
-    conf_matrix = confusion_matrix(test_labels, test_predictions)
+    conf_matrix = confusion_matrix(test_labels, test_predictions, labels=np.arange(len(class_names)))
     disp = ConfusionMatrixDisplay(confusion_matrix=conf_matrix, display_labels=class_names)
     disp.plot(cmap=plt.cm.Blues)
     plt.show()
