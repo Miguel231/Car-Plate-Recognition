@@ -77,11 +77,12 @@ def evaluate_model(model, test_loader, class_names):
     accuracy = 100 * correct / total
     print(f"Test Accuracy: {accuracy}%")
 
-    cm = confusion_matrix(all_labels, all_predictions)
+    cm = confusion_matrix(all_labels, all_predictions, labels=np.arange(len(class_names)))
     
-    # Display confusion matrix
+    # Display confusion matrix with class names
     disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=class_names)
     disp.plot(cmap=plt.cm.Blues)
+    plt.xticks(rotation=90)  # Rotate labels for readability
     plt.show()
 
 def preprocess_character_image(char_image):
