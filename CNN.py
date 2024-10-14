@@ -9,7 +9,9 @@ from torch.utils.data import DataLoader, random_split
 from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 
 class CNNModel(nn.Module):
     def __init__(self, num_classes):
@@ -54,10 +56,12 @@ def train_model(model, train_loader, criterion, optimizer, num_epochs=10):
     print("Finished Training")
 
 
-def evaluate_model(model, test_loader):
+def evaluate_model(model, test_loader, class_names):
     model.eval()  
     correct = 0
     total = 0
+    all_labels = []
+    all_predictions = []
 
     with torch.no_grad():
         for images, labels in test_loader:
@@ -67,8 +71,18 @@ def evaluate_model(model, test_loader):
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
 
+            all_labels.extend(labels.cpu().numpy())
+            all_predictions.extend(predicted.cpu().numpy())
+
     accuracy = 100 * correct / total
     print(f"Test Accuracy: {accuracy}%")
+
+    cm = confusion_matrix(all_labels, all_predictions)
+    
+    # Display confusion matrix
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=class_names)
+    disp.plot(cmap=plt.cm.Blues)
+    plt.show()
 
 def preprocess_character_image(char_image):
     transform = transforms.Compose([

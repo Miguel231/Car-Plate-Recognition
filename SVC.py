@@ -5,7 +5,7 @@ import os
 from PIL import Image
 from sklearn import svm
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score,  confusion_matrix, ConfusionMatrixDisplay
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from PIL import Image
 
@@ -58,6 +58,11 @@ def train_svm_and_get_accuracy(base_path):
     test_predictions = clf.predict(test_images)
 
     accuracy = accuracy_score(test_labels, test_predictions)
+
+    conf_matrix = confusion_matrix(test_labels, test_predictions)
+    disp = ConfusionMatrixDisplay(confusion_matrix=conf_matrix, display_labels=label_encoder.classes_)
+    disp.plot(cmap=plt.cm.Blues)
+    plt.show()
     
     return accuracy, clf, scaler, label_encoder
 
