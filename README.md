@@ -1,7 +1,6 @@
 # Car Plate Recognition
 
-
-[https://drive.google.com/drive/folders/1qMIVP5-665d0stgs0FKR6Z5DrRBZyl1J?usp=sharing](#Character Dataset)
+[Character Dataset](https://drive.google.com/drive/folders/1qMIVP5-665d0stgs0FKR6Z5DrRBZyl1J?usp=sharing)
 
 ## 1. Introduction  
 
